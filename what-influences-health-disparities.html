@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What influences health disparities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --ink:#1c231f;
+    --ink-soft:#4b544e;
+    --ink-mute:#7c847e;
+    --paper:#f6f4ee;
+    --card:#ffffff;
+    --line:#dcd8cc;
+    --atlantic:#a8492f;
+    --atlantic-deep:#7a3220;
+    --pacific:#1f6f63;
+    --pacific-deep:#154e45;
+    --amber:#c07f1f;
+    --gray:#8a8880;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.65;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:64px 24px 96px;}
+  h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;font-weight:600;color:var(--ink);margin:0;}
+  h1{font-size:clamp(32px,5vw,44px);line-height:1.15;max-width:14ch;}
+  .kicker{font-size:14px;color:var(--ink-mute);margin:0 0 14px;}
+  .subhead{font-size:17px;color:var(--ink-soft);max-width:56ch;margin:20px 0 0;}
+  header{margin-bottom:56px;border-bottom:1px solid var(--line);padding-bottom:40px;}
+  section{margin:64px 0;}
+  section h2{font-size:24px;margin-bottom:6px;}
+  .section-note{font-size:14px;color:var(--ink-mute);margin:0 0 24px;max-width:60ch;}
+  p{font-size:16px;color:var(--ink-soft);max-width:64ch;}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--ink-soft);margin:8px 0 18px;}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;}
+  .chart-box{position:relative;width:100%;}
+  .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+  .metric{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:18px 20px;}
+  .metric .label{font-size:13px;color:var(--ink-mute);margin-bottom:10px;}
+  .metric .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .metric .val{font-family:'Source Serif 4',serif;font-size:26px;font-weight:600;}
+  .metric .val.nl{color:var(--atlantic-deep);}
+  .metric .val.bc{color:var(--pacific-deep);}
+  .metric .tag{font-size:11px;color:var(--ink-mute);}
+  .metric .caveat{font-size:12px;color:var(--amber);margin-top:8px;}
+  .metric .foot{font-size:12px;color:var(--ink-mute);margin-top:8px;}
+  .factor-card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:20px 22px;margin-bottom:14px;}
+  .factor-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px;}
+  .factor-head h3{font-size:16px;}
+  .factor-pct{font-family:'Source Serif 4',serif;font-size:20px;font-weight:600;color:var(--ink);}
+  .factor-card p{font-size:14px;margin:0 0 8px;}
+  .factor-card .ex{font-size:13px;color:var(--ink-mute);margin:0;}
+  .summary{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--ink);border-radius:4px;padding:26px 28px;}
+  .summary p{margin:0 0 14px;font-size:15px;}
+  .summary p:last-child{margin-bottom:0;}
+  footer{border-top:1px solid var(--line);padding-top:24px;font-size:12px;color:var(--ink-mute);}
+  footer p{font-size:12px;max-width:none;color:var(--ink-mute);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">Comparing Newfoundland and Labrador and British Columbia</p>
+  <h1>What influences health disparities</h1>
+  <p class="subhead">Newfoundland and Labrador has some of the worst health outcomes in Canada &mdash; shorter life expectancy, higher rates of heart disease, diabetes, and cancer. British Columbia has some of the best. Both provinces were compared on risk factors, outcomes, and social context, then checked against published research on what actually drives that kind of gap.</p>
+</header>
+
+<section>
+  <h2>Risk factors</h2>
+  <p class="section-note">Statistics Canada / CCHS survey data. NL is higher on every measure.</p>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--atlantic);"></span>Newfoundland and Labrador</span>
+    <span><span class="dot" style="background:var(--pacific);"></span>British Columbia</span>
+  </div>
+  <div class="chart-box" style="height:220px;">
+    <canvas id="riskChart" role="img" aria-label="Bar chart comparing NL and BC on smoking, heavy drinking, low produce intake, and physical inactivity. NL is higher on all four.">Current smoking 15.0% vs 9.5%. Heavy drinking 26.4% vs 16.6%. Low produce intake 86.6% vs 70.1%. Physically inactive 51.7% vs 38.3%.</canvas>
+  </div>
+  <p style="font-size:12px;color:var(--ink-mute);margin-top:14px;">Sources: current smoking, 2023. Heavy drinking, 2011 (most recent directly comparable figures). Low produce intake, 2023 (NL) and 2015 (BC). Physical inactivity, 2014.</p>
+</section>
+
+<section>
+  <h2>Health outcomes</h2>
+  <p class="section-note">The downstream result of the risk factors above, plus everything else that differs between the two provinces.</p>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="label">Life expectancy at birth, 2023</div>
+      <div class="row"><span class="val nl">79.1</span><span class="tag">yrs, NL</span></div>
+      <div class="row"><span class="val bc">82.0</span><span class="tag">yrs, BC</span></div>
+      <div class="foot">2.8 fewer years in NL &mdash; one of the largest provincial gaps in Canada</div>
+    </div>
+    <div class="metric">
+      <div class="label">Diagnosed with heart disease, 2023</div>
+      <div class="row"><span class="val nl">8.4%</span><span class="tag">NL</span></div>
+      <div class="row"><span class="val bc">6.3%</span><span class="tag">Canada avg</span></div>
+      <div class="foot">BC-specific figure not separately published; national average shown</div>
+    </div>
+    <div class="metric">
+      <div class="label">Diagnosed with diabetes</div>
+      <div class="row"><span class="val nl">12.0%</span><span class="tag">NL, 2024</span></div>
+      <div class="row"><span class="val bc">8.9%</span><span class="tag">BC, 2021/22</span></div>
+    </div>
+    <div class="metric">
+      <div class="label">Cancer incidence, 2019</div>
+      <div class="row"><span class="val nl">531</span><span class="tag">per 100k, NL</span></div>
+      <div class="row"><span class="val bc">472</span><span class="tag">per 100k, BC</span></div>
+      <div class="foot">Age-standardized, all cancer types; NL had the highest provincial rate that year</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Social and economic context</h2>
+  <p class="section-note">Leaving geography aside, this is what tends to sit behind the risk-factor and outcome gaps.</p>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="label">Median after-tax income, 2023</div>
+      <div class="row"><span class="val nl">$65.7k</span><span class="tag">NL</span></div>
+      <div class="row"><span class="val bc">$73.9k</span><span class="tag">BC</span></div>
+    </div>
+    <div class="metric">
+      <div class="label">Median family net worth, 2023</div>
+      <div class="row"><span class="val nl">$334k</span><span class="tag">NL</span></div>
+      <div class="row"><span class="val bc">$774k</span><span class="tag">BC</span></div>
+      <div class="foot">Largely reflects home equity, especially Vancouver-area real estate</div>
+    </div>
+    <div class="metric">
+      <div class="label">Living in a rural area</div>
+      <div class="row"><span class="val nl">47%</span><span class="tag">NL, 2021</span></div>
+      <div class="row"><span class="val bc">14%</span><span class="tag">BC, 2011</span></div>
+    </div>
+    <div class="metric">
+      <div class="label">Has a regular family doctor</div>
+      <div class="row"><span class="val nl">69%</span><span class="tag">NL, 2025</span></div>
+      <div class="row"><span class="val bc">~70%</span><span class="tag">BC, 2023</span></div>
+      <div class="caveat">Doesn&rsquo;t follow the pattern &mdash; BC has one of the worst family-doctor shortages in Canada too, despite better outcomes overall</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>What explains the variation</h2>
+  <p class="section-note">Bauer et al. (2015), validating the County Health Rankings model (University of Wisconsin Population Health Institute / Robert Wood Johnson Foundation) against actual U.S. county-level outcomes. This is a share of statistical variance explained, not a share of deaths caused, and it&rsquo;s U.S. research &mdash; no Canadian equivalent exists at this resolution.</p>
+  <div class="chart-box" style="height:240px;max-width:320px;margin:0 auto 28px;">
+    <canvas id="donutChart" role="img" aria-label="Donut chart: social and economic 25 percent, health behaviors 18 percent, clinical care 9 percent, physical environment 2 percent, other or unexplained 46 percent">Social/economic 25%, health behaviors 18%, clinical care 9%, physical environment 2%, other/unexplained 46%.</canvas>
+  </div>
+
+  <div class="factor-card">
+    <div class="factor-head"><h3>Social and economic factors</h3><span class="factor-pct">25%</span></div>
+    <p>Income, education, employment, and the strength of a community&rsquo;s social fabric. This is the largest driver in the model, bigger than health behaviors, because money and education shape almost everything downstream, including which behaviors are even accessible.</p>
+    <p class="ex">Example: median after-tax income was $65.7k in NL versus $73.9k in BC in 2023, and median family net worth was $334k versus $774k.</p>
+  </div>
+
+  <div class="factor-card">
+    <div class="factor-head"><h3>Health behaviors</h3><span class="factor-pct">18%</span></div>
+    <p>Smoking, diet, alcohol use, and physical activity levels. These are what most people picture first when they think about health risk, but the model ranks them second, behind social and economic conditions.</p>
+    <p class="ex">Example: 2023 smoking rates were 15.0% in NL versus 9.5% in BC; heavy drinking was 26.4% versus 16.6%.</p>
+  </div>
+
+  <div class="factor-card">
+    <div class="factor-head"><h3>Clinical care</h3><span class="factor-pct">9%</span></div>
+    <p>Access to care and quality of care once you get it: coverage, wait times, screening rates, having a regular provider. It carries less weight than most people expect, and Canada&rsquo;s universal coverage may compress its effect further versus the U.S. data this model is built on.</p>
+    <p class="ex">Example: family doctor access breaks the usual pattern. 69% of NL residents have a regular provider versus roughly 70% in BC. BC struggles with this almost as much as NL does.</p>
+  </div>
+
+  <div class="factor-card">
+    <div class="factor-head"><h3>Physical environment</h3><span class="factor-pct">2%</span></div>
+    <p>Air and water quality, housing conditions, and the built environment: walkability, access to healthy food outlets. It&rsquo;s the smallest measured slice, though it still touches the risk factors above it, since rural food deserts affect diet quality.</p>
+    <p class="ex">Example: 47% of NL&rsquo;s population is rural versus 14% in BC, which correlates with the produce-access gap seen earlier: 13.4% of NL adults ate 5+ servings of fruit and vegetables daily versus a national average of 21.6%.</p>
+  </div>
+
+  <div class="factor-card">
+    <div class="factor-head"><h3>Other, unexplained</h3><span class="factor-pct">46%</span></div>
+    <p>The largest single slice, and the honest part of the model. It likely includes genetics and biology, which this model doesn&rsquo;t isolate as its own category, plus measurement error, chance, and interactions between factors a simple additive model can&rsquo;t capture.</p>
+    <p class="ex">A separate research model (McGinnis et al., 2002) estimated genetic predisposition alone at around 30% of premature death risk, suggesting genetics makes up a real part of this slice.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Summary</h2>
+  <div class="summary">
+    <p>Newfoundland and Labrador and British Columbia sit at opposite ends of Canada&rsquo;s health spectrum, with NL scoring worse on every risk factor and outcome measured here, gaps that trace back to lower income and higher rurality rather than healthcare access, which is roughly equally strained in both provinces; and published research on what drives variation in health outcomes generally (Bauer et al., 2015) backs up that pattern, finding that social and economic conditions explain more of the variance than health behaviors, which explain more than clinical care or the physical environment, with genetics and other unmeasured factors making up the largest remaining share &mdash; a reminder that no single-factor story, including this one, fully explains why two provinces end up so far apart.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Sources: Statistics Canada CCHS (smoking, drinking, diet, physical activity, family doctor access), Statistics Canada life tables (life expectancy), Statistics Canada income and net worth releases (2023), 2021 and 2011 censuses (rural population share), Statistics Canada cancer incidence release (2019), Bauer et al. (2015, County Health Rankings model validation), McGinnis, Williams-Russo &amp; Knickman (Health Affairs, 2002). Where sources span different years or use different methodologies, this is noted inline &mdash; treat cross-year comparisons as approximate.</p>
+</footer>
+
+</div>
+
+<script>
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+new Chart(document.getElementById('riskChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Current smoking', 'Heavy drinking', 'Low produce intake', 'Physically inactive'],
+    datasets: [
+      { label: 'Newfoundland and Labrador', data: [15.0, 26.4, 86.6, 51.7], backgroundColor: '#a8492f', borderRadius: 3, barThickness: 18 },
+      { label: 'British Columbia', data: [9.5, 16.6, 70.1, 38.3], backgroundColor: '#1f6f63', borderRadius: 3, barThickness: 18 }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { min: 0, max: 100, grid: { color: '#e3e0d4' }, ticks: { color: '#7c847e', font: { size: 11 }, callback: (v) => v + '%' } },
+      y: { grid: { display: false }, ticks: { color: '#4b544e', font: { size: 12 } } }
+    }
+  }
+});
+
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Social/economic', 'Health behaviors', 'Clinical care', 'Physical environment', 'Other/unexplained'],
+    datasets: [{
+      data: [25, 18, 9, 2, 46],
+      backgroundColor: ['#a8492f', '#1f6f63', '#3f8f7f', '#c07f1f', '#b8b4a6']
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '58%',
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 }, color: '#4b544e' } },
+      tooltip: { callbacks: { label: (ctx) => ctx.label + ': ' + ctx.raw + '%' } }
+    }
+  }
+});
+</script>
+</body>
+</html>
