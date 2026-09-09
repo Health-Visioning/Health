@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Fast Different Substances Build Tolerance</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #F7F5EF;
+    --ink: #221F1A;
+    --ink-muted: #6B6858;
+    --line: #DAD6C9;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.5;
+  }
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 72px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 32px;
+    font-weight: normal;
+    line-height: 1.25;
+    margin: 0 0 8px;
+    max-width: 20ch;
+  }
+  .dek {
+    font-size: 16px;
+    color: var(--ink-muted);
+    margin: 0 0 32px;
+    max-width: 62ch;
+  }
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px 20px 20px;
+  }
+  .chart-wrap { position: relative; height: 360px; }
+
+  .selector {
+    margin-top: 28px;
+    display: grid;
+    gap: 0;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .row:hover { background: rgba(0,0,0,0.03); }
+  .row input[type="checkbox"] { accent-color: var(--dot, #221F1A); width: 16px; height: 16px; }
+  .name-col { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .name { font-size: 15px; }
+  .comment { font-size: 12.5px; color: var(--ink-muted); }
+
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: normal;
+    font-size: 20px;
+    margin: 48px 0 16px;
+  }
+  .caveats { border-left: 2px solid var(--line); padding-left: 20px; }
+  .caveats p { margin: 0 0 16px; font-size: 15px; max-width: 62ch; }
+  .caveats p:last-child { margin-bottom: 0; }
+  .caveats strong { font-weight: 600; }
+  footer { margin-top: 48px; font-size: 13px; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>How fast different substances build tolerance</h1>
+  <p class="dek">Select any combination to compare tolerance curves and dependence strength. Illustrative, based on general addictive-potential rankings — not measured clinical data.</p>
+
+  <div class="chart-card">
+    <div class="chart-wrap">
+      <canvas id="habitChart" role="img" aria-label="Line chart showing dopamine response decline over repeated exposure for the selected substances.">
+      </canvas>
+    </div>
+  </div>
+
+  <div class="selector" id="selector" role="group" aria-label="Choose substances to compare"></div>
+
+  <h2>Caveats — read before you cite this anywhere</h2>
+  <div class="caveats">
+    <p><strong>Both the curves and the dependence scores are illustrative,</strong> not measured data. They're built from general knowledge of relative addictive potential, not from a single study or dataset — don't attach a citation to the specific numbers.</p>
+    <p><strong>Real tolerance doesn't follow a clean exponential curve.</strong> It varies by dose, frequency, route of administration (smoked/injected substances hit faster and harder than oral ones), genetics, and individual brain chemistry.</p>
+    <p><strong>"Dependence strength" collapses several different things</strong> researchers usually separate: physical dependence, psychological craving, withdrawal severity, and likelihood of compulsive use. A single score is a simplification of all four.</p>
+    <p><strong>Ranking addictive potential is genuinely contested.</strong> Studies like Nutt et al. (2007, 2010) rank substances across multiple harm/dependence dimensions and don't always agree on ordering — this is a common approximation, not a consensus finding.</p>
+    <p><strong>Food and behavioral "addictions" are debated as a category</strong> — whether ordinary food reward compares directly to drug dependence is itself an active scientific discussion.</p>
+    <p><strong>This is for building intuition, not clinical or dosing decisions.</strong> If you or someone you know is dealing with substance use, a doctor or addiction specialist can give guidance this chart isn't designed to provide.</p>
+  </div>
+
+  <footer>Educational illustration — not derived from measured clinical or imaging data.</footer>
+</main>
+
+<script>
+const substances = [
+  { name: 'Heroin / opioids', floor: 12, amp: 88, rate: 0.65, dependence: 9, color: '#8C2F39' },
+  { name: 'Amphetamines',     floor: 15, amp: 85, rate: 0.62, dependence: 9, color: '#D4552B' },
+  { name: 'Nicotine',         floor: 25, amp: 75, rate: 0.80, dependence: 8, color: '#2A78D6' },
+  { name: 'Cocaine',          floor: 18, amp: 82, rate: 0.68, dependence: 8, color: '#C97B3B' },
+  { name: 'Alcohol',          floor: 30, amp: 70, rate: 0.85, dependence: 7, color: '#5C6FA6' },
+  { name: 'Cannabis',         floor: 35, amp: 65, rate: 0.88, dependence: 4, color: '#7A8B4F' },
+  { name: 'Food',             floor: 42, amp: 58, rate: 0.93, dependence: 3, color: '#4A9B6E' },
+  { name: 'Caffeine',         floor: 45, amp: 55, rate: 0.90, dependence: 3, color: '#A9A48A' }
+];
+
+const labels = Array.from({length: 15}, (_, i) => i + 1);
+function curve(s) { return labels.map(n => s.floor + s.amp * Math.pow(s.rate, n - 1)); }
+function dependenceLabel(score) {
+  if (score >= 8) return 'Very high';
+  if (score >= 6) return 'High';
+  if (score >= 4) return 'Moderate';
+  return 'Low';
+}
+function commentFor(s) {
+  const respAt5 = Math.round(s.floor + s.amp * Math.pow(s.rate, 4));
+  return dependenceLabel(s.dependence) + ' dependence (' + s.dependence + '/10) · dopamine response drops to ' + respAt5 + '% by use #5';
+}
+
+const selectorEl = document.getElementById('selector');
+substances.forEach((s, i) => {
+  const row = document.createElement('label');
+  row.className = 'row';
+  row.style.setProperty('--dot', s.color);
+  row.innerHTML =
+    '<input type="checkbox" name="substance" value="' + i + '"' + (i === 0 ? ' checked' : '') + '>' +
+    '<span class="name-col"><span class="name">' + s.name + '</span><span class="comment">' + commentFor(s) + '</span></span>';
+  selectorEl.appendChild(row);
+});
+
+const ctx = document.getElementById('habitChart');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: { labels: labels, datasets: [] },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 24, boxHeight: 2, padding: 14, font: { size: 12 } } },
+      tooltip: { callbacks: { label: (item) => item.dataset.label + ': ' + Math.round(item.parsed.y) + '%' } }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Number of times used' }, grid: { display: false } },
+      y: { title: { display: true, text: 'Dopamine response (%)' }, grid: { color: '#DAD6C9' }, min: 0, max: 100 }
+    }
+  }
+});
+
+function rebuildChart() {
+  const checked = Array.from(selectorEl.querySelectorAll('input:checked')).map(el => Number(el.value));
+  chart.data.datasets = checked.map(i => {
+    const s = substances[i];
+    return {
+      label: s.name,
+      data: curve(s),
+      borderColor: s.color,
+      backgroundColor: 'transparent',
+      tension: 0.3,
+      borderWidth: 2.5,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointStyle: 'line'
+    };
+  });
+  chart.update();
+}
+rebuildChart();
+selectorEl.addEventListener('change', rebuildChart);
+</script>
+</body>
+</html>
