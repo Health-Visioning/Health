@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Canada deaths per 100, by ICD-10 chapter and age group, 2024</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 24px; background: #ffffff; color: #0b0b0b; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  p.sub { font-size: 13px; color: #52514e; margin: 0 0 20px; }
+  #chartWrap { position: relative; width: 100%; height: 560px; }
+  #legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; font-size: 12px; color: #333; }
+  .legend-item { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .legend-item:hover { background: #f1efe8; }
+  .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  footer { margin-top: 20px; font-size: 11px; color: #888780; }
+</style>
+</head>
+<body>
+<h1>Share of deaths per 100, by ICD-10 chapter and age group, Canada, 2024</h1>
+<p class="sub">Deaths per 100 deaths (share within each age group), all sexes, most recent year available. Click a legend item or a bar segment to isolate that chapter; click again to show all. Source: Statistics Canada, Canadian Vital Statistics – Death database.</p>
+<div id="chartWrap">
+  <canvas id="rateChart" role="img" aria-label="100 percent stacked bar chart showing each ICD-10 chapter's share of deaths, per 100 deaths, within each ten-year age group. Click a legend item or a bar segment to isolate that chapter.">Neoplasms and circulatory disease account for the largest shares of deaths in middle and older age groups, while external causes dominate deaths among people aged 15 to 40.</canvas>
+</div>
+<div id="legend"></div>
+<footer>Rates sum to 100 within each age group</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const ageGroups = ["Under 1","1-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80-84","85-89","90+"];
+const datasets = [{"label":"Certain infectious and parasi…","data":[1.08,6.12,5.26,0.81,1.01,0.34,0.57,1.15,0.92,1.02,1.25,1.5,1.48,1.56,1.46,1.66,1.65,1.86,1.92,2.06],"backgroundColor":"#dd4b4b","fullName":"Chapter I: Certain infectious and parasitic diseases [A00-B99]"},{"label":"Neoplasms","data":[0.78,13.06,23.68,19.51,7.43,5.13,4.93,8.88,13.39,18.89,26.2,30.37,33.24,39.29,40.16,38.72,34.39,28.47,21.79,12.69],"backgroundColor":"#76e596","fullName":"Chapter II: Neoplasms [C00-D48]"},{"label":"Diseases of blood and blood-f…","data":[0.36,0.82,1.05,0.0,0.38,0.62,0.33,0.34,0.27,0.43,0.22,0.29,0.25,0.29,0.3,0.27,0.3,0.28,0.32,0.42],"backgroundColor":"#a04bdd","fullName":"Chapter III: Diseases of blood and blood-forming organs and certain disorders involving the immune mechanism [D50-D89]"},{"label":"Endocrine, nutritional and me…","data":[0.84,4.9,4.74,3.66,1.64,1.09,1.67,1.79,2.28,2.96,3.72,3.79,3.81,3.65,3.7,3.48,3.42,3.26,3.12,2.74],"backgroundColor":"#e5d776","fullName":"Chapter IV: Endocrine, nutritional and metabolic diseases [E00-E89]"},{"label":"Mental and behavioural disord…","data":[0.0,0.0,0.53,0.41,0.88,0.55,1.1,1.55,1.99,1.8,2.21,1.69,1.68,1.9,2.2,3.43,5.98,9.59,13.82,19.15],"backgroundColor":"#4bc4dd","fullName":"Chapter V: Mental and behavioural disorders [F01-F99]"},{"label":"Diseases of the nervous system","data":[1.63,8.98,5.79,7.72,3.53,2.46,2.15,2.09,1.9,2.2,2.61,2.99,3.44,3.57,4.12,4.55,5.71,5.84,5.65,4.67],"backgroundColor":"#e576b2","fullName":"Chapter VI: Diseases of the nervous system [G00-G98]"},{"label":"Diseases of the eye and adnexa","data":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.0,0.0,0.01,0.02,0.04],"backgroundColor":"#6fdd4b","fullName":"Chapter VII: Diseases of the eye and adnexa [H00-H59]"},{"label":"Diseases of the ear and masto…","data":[0.06,0.41,0.0,0.0,0.0,0.14,0.0,0.0,0.0,0.02,0.0,0.01,0.02,0.01,0.01,0.0,0.0,0.01,0.01,0.01],"backgroundColor":"#7b76e5","fullName":"Chapter VIII: Diseases of the ear and mastoid process [H60-H95]"},{"label":"Diseases of the circulatory s…","data":[0.42,4.49,3.68,6.91,2.39,2.74,3.63,5.03,6.25,9.56,13.77,16.97,20.33,20.71,22.11,22.24,23.06,24.33,26.56,29.95],"backgroundColor":"#dd7c4b","fullName":"Chapter IX: Diseases of the circulatory system [I00-I99]"},{"label":"Diseases of the respiratory s…","data":[0.54,6.53,6.84,2.44,1.39,1.5,1.63,1.96,1.99,2.3,3.38,3.69,5.22,7.2,8.07,9.87,10.05,10.1,9.59,9.01],"backgroundColor":"#76e5bb","fullName":"Chapter X: Diseases of the respiratory system [J00-J98]"},{"label":"Diseases of the digestive sys…","data":[0.24,0.41,2.11,2.85,0.76,1.37,2.68,4.09,4.98,6.2,5.55,6.9,7.01,5.72,5.63,5.39,4.57,4.38,3.98,3.83],"backgroundColor":"#d14bdd","fullName":"Chapter XI: Diseases of the digestive system [K00-K92]"},{"label":"Diseases of the skin and subc…","data":[0.0,0.0,0.0,0.0,0.0,0.07,0.19,0.03,0.12,0.19,0.26,0.11,0.29,0.22,0.27,0.29,0.3,0.33,0.37,0.39],"backgroundColor":"#cee576","fullName":"Chapter XII: Diseases of the skin and subcutaneous tissue [L00-L98]"},{"label":"Diseases of the musculoskelet…","data":[0.06,0.0,0.53,0.41,0.0,0.21,0.43,0.2,0.53,0.69,0.46,0.78,0.77,0.75,0.72,0.81,0.92,0.88,0.83,1.02],"backgroundColor":"#4b94dd","fullName":"Chapter XIII: Diseases of the musculoskeletal system and connective tissue [M00-M99]"},{"label":"Diseases of the genitourinary…","data":[0.0,0.41,0.0,0.0,0.25,0.07,0.33,0.44,0.53,0.71,0.66,0.79,1.19,1.14,1.37,1.76,2.26,2.64,2.93,3.09],"backgroundColor":"#e5768d","fullName":"Chapter XIV: Diseases of the genitourinary system [N00-N99]"},{"label":"Pregnancy, childbirth and the…","data":[0.0,0.0,0.0,0.0,0.25,0.14,0.29,0.61,0.3,0.12,0.06,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"backgroundColor":"#4bdd57","fullName":"Chapter XV: Pregnancy, childbirth and the puerperium [O00-O99]"},{"label":"Certain conditions originatin…","data":[55.87,0.41,0.53,0.41,0.0,0.0,0.0,0.07,0.06,0.02,0.0,0.0,0.0,0.01,0.0,0.01,0.0,0.0,0.0,0.0],"backgroundColor":"#a076e5","fullName":"Chapter XVI: Certain conditions originating in the perinatal period [P00-P96]"},{"label":"Congenital malformations, def…","data":[21.01,11.43,6.32,5.69,2.9,0.96,0.67,0.61,0.98,0.71,0.66,0.74,0.78,0.56,0.25,0.16,0.1,0.06,0.03,0.01],"backgroundColor":"#ddac4b","fullName":"Chapter XVII: Congenital malformations, deformations and chromosomal abnormalities [Q00-Q99]"},{"label":"Symptoms, signs and abnormal…","data":[14.99,23.67,21.05,16.26,23.93,22.16,22.86,19.93,18.52,15.13,11.94,9.81,7.13,5.14,3.83,2.56,2.14,1.8,1.83,2.66],"backgroundColor":"#76e5e1","fullName":"Chapter XVIII: Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified [R00-R99]"},{"label":"External causes of morbidity…","data":[1.99,17.96,16.32,32.11,53.27,60.12,56.34,51.06,44.8,36.74,26.72,19.21,12.84,7.69,4.99,3.67,3.66,4.34,5.07,5.81],"backgroundColor":"#dd4bb8","fullName":"Chapter XX: External causes of morbidity and mortality [V01-Y89]"},{"label":"Codes for special purposes","data":[0.12,0.41,1.58,0.81,0.0,0.34,0.19,0.17,0.21,0.31,0.34,0.36,0.52,0.58,0.8,1.13,1.49,1.83,2.17,2.42],"backgroundColor":"#a8e576","fullName":"Chapter XXII: Codes for special purposes [U00-U99]"}];
+
+const chart = new Chart(document.getElementById('rateChart'), {
+  type: 'bar',
+  data: { labels: ageGroups, datasets: datasets.map(d => ({ label: d.label, data: d.data, backgroundColor: d.backgroundColor })) },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { autoSkip: false, maxRotation: 60, minRotation: 60, font: { size: 11 } } },
+      y: { stacked: true, min: 0, max: 100, grid: { color: '#e1e0d9' }, ticks: { callback: v => v + '%' }, title: { display: true, text: 'Deaths per 100 (share within age group)' } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + ' per 100 deaths' } }
+    },
+    onClick: (evt, elements) => {
+      if (elements.length) selectChapter(elements[0].datasetIndex);
+    }
+  }
+});
+
+let selected = null;
+
+function applySelection() {
+  chart.data.datasets.forEach((ds, i) => {
+    chart.setDatasetVisibility(i, selected === null || selected === i);
+  });
+  chart.update();
+  document.querySelectorAll('.legend-item').forEach((el, i) => {
+    const isSel = selected === i;
+    el.style.opacity = (selected === null || isSel) ? '1' : '0.35';
+    el.style.fontWeight = isSel ? '600' : '400';
+  });
+}
+
+function selectChapter(idx) {
+  selected = (selected === idx) ? null : idx;
+  applySelection();
+}
+
+const legendEl = document.getElementById('legend');
+datasets.forEach((d, i) => {
+  const item = document.createElement('span');
+  item.className = 'legend-item';
+  item.title = d.fullName;
+  item.innerHTML = '<span class="swatch" style="background:' + d.backgroundColor + ';"></span>' + d.label;
+  item.addEventListener('click', () => selectChapter(i));
+  legendEl.appendChild(item);
+});
+</script>
+</body>
+</html>

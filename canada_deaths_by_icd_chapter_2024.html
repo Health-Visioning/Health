@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Canada deaths by ICD-10 chapter and age group, 2024</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 24px; background: #ffffff; color: #0b0b0b; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  p.sub { font-size: 13px; color: #52514e; margin: 0 0 20px; }
+  #chartWrap { position: relative; width: 100%; height: 560px; }
+  #legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; font-size: 12px; color: #333; }
+  .legend-item { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .legend-item:hover { background: #f1efe8; }
+  .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  footer { margin-top: 20px; font-size: 11px; color: #888780; }
+</style>
+</head>
+<body>
+<h1>Deaths by ICD-10 chapter and age group, Canada, 2024</h1>
+<p class="sub">Number of deaths, all sexes, most recent year available. Click a legend item or a bar segment to isolate that chapter; click again to show all. Source: Statistics Canada, Canadian Vital Statistics – Death database.</p>
+<div id="chartWrap">
+  <canvas id="mortChart" role="img" aria-label="Stacked bar chart of Canadian deaths in 2024 by ICD-10 chapter across 20 ten-year age groups. Click a legend item or a bar segment to isolate that chapter.">Deaths rise sharply with age across all ICD-10 chapters, with circulatory disease, neoplasms, and respiratory disease contributing the largest shares among older age groups.</canvas>
+</div>
+<div id="legend"></div>
+<footer>Total, all causes of death, 2024: 326,779</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const ageGroups = ["Under 1","1-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80-84","85-89","90+"];
+const datasets = [{"label":"Certain infectious and parasi…","data":[18,15,10,2,8,5,12,34,31,43,63,108,166,301,390,555,704,856,932,1434],"backgroundColor":"#dd4b4b","fullName":"Chapter I: Certain infectious and parasitic diseases [A00-B99]"},{"label":"Neoplasms","data":[13,32,45,48,59,75,103,263,452,798,1317,2180,3730,7558,10703,12979,14642,13132,10577,8818],"backgroundColor":"#76e596","fullName":"Chapter II: Neoplasms [C00-D48]"},{"label":"Diseases of blood and blood-f…","data":[6,2,2,0,3,9,7,10,9,18,11,21,28,55,79,92,128,129,156,295],"backgroundColor":"#a04bdd","fullName":"Chapter III: Diseases of blood and blood-forming organs and certain disorders involving the immune mechanism [D50-D89]"},{"label":"Endocrine, nutritional and me…","data":[14,12,9,9,13,16,35,53,77,125,187,272,427,702,985,1166,1458,1503,1514,1901],"backgroundColor":"#e5d776","fullName":"Chapter IV: Endocrine, nutritional and metabolic diseases [E00-E89]"},{"label":"Mental and behavioural disord…","data":[0,0,1,1,7,8,23,46,67,76,111,121,189,366,586,1149,2546,4423,6708,13305],"backgroundColor":"#4bc4dd","fullName":"Chapter V: Mental and behavioural disorders [F01-F99]"},{"label":"Diseases of the nervous system","data":[27,22,11,19,28,36,45,62,64,93,131,215,386,686,1099,1525,2432,2693,2742,3246],"backgroundColor":"#e576b2","fullName":"Chapter VI: Diseases of the nervous system [G00-G98]"},{"label":"Diseases of the eye and adnexa","data":[0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,2,6,10,27],"backgroundColor":"#6fdd4b","fullName":"Chapter VII: Diseases of the eye and adnexa [H00-H59]"},{"label":"Diseases of the ear and masto…","data":[1,1,0,0,0,2,0,0,0,1,0,1,2,2,3,1,1,5,5,9],"backgroundColor":"#7b76e5","fullName":"Chapter VIII: Diseases of the ear and mastoid process [H60-H95]"},{"label":"Diseases of the circulatory s…","data":[7,11,7,17,19,40,76,149,211,404,692,1218,2281,3984,5893,7454,9818,11219,12890,20804],"backgroundColor":"#dd7c4b","fullName":"Chapter IX: Diseases of the circulatory system [I00-I99]"},{"label":"Diseases of the respiratory s…","data":[9,16,13,6,11,22,34,58,67,97,170,265,586,1386,2151,3310,4279,4656,4653,6260],"backgroundColor":"#76e5bb","fullName":"Chapter X: Diseases of the respiratory system [J00-J98]"},{"label":"Diseases of the digestive sys…","data":[4,1,4,7,6,20,56,121,168,262,279,495,787,1101,1501,1806,1945,2020,1930,2661],"backgroundColor":"#d14bdd","fullName":"Chapter XI: Diseases of the digestive system [K00-K92]"},{"label":"Diseases of the skin and subc…","data":[0,0,0,0,0,1,4,1,4,8,13,8,32,42,73,98,128,154,179,272],"backgroundColor":"#cee576","fullName":"Chapter XII: Diseases of the skin and subcutaneous tissue [L00-L98]"},{"label":"Diseases of the musculoskelet…","data":[1,0,1,1,0,3,9,6,18,29,23,56,86,144,192,270,392,406,403,708],"backgroundColor":"#4b94dd","fullName":"Chapter XIII: Diseases of the musculoskeletal system and connective tissue [M00-M99]"},{"label":"Diseases of the genitourinary…","data":[0,1,0,0,2,1,7,13,18,30,33,57,134,220,366,590,963,1217,1421,2146],"backgroundColor":"#e5768d","fullName":"Chapter XIV: Diseases of the genitourinary system [N00-N99]"},{"label":"Pregnancy, childbirth and the…","data":[0,0,0,0,2,2,6,18,10,5,3,0,0,0,0,0,0,0,0,0],"backgroundColor":"#4bdd57","fullName":"Chapter XV: Pregnancy, childbirth and the puerperium [O00-O99]"},{"label":"Certain conditions originatin…","data":[928,1,1,1,0,0,0,2,2,1,0,0,0,1,1,2,0,0,0,0],"backgroundColor":"#a076e5","fullName":"Chapter XVI: Certain conditions originating in the perinatal period [P00-P96]"},{"label":"Congenital malformations, def…","data":[349,28,12,14,23,14,14,18,33,30,33,53,87,107,67,54,41,26,13,10],"backgroundColor":"#ddac4b","fullName":"Chapter XVII: Congenital malformations, deformations and chromosomal abnormalities [Q00-Q99]"},{"label":"Symptoms, signs and abnormal…","data":[249,58,40,40,190,324,478,590,625,639,600,704,800,989,1020,859,912,828,887,1851],"backgroundColor":"#76e5e1","fullName":"Chapter XVIII: Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified [R00-R99]"},{"label":"External causes of morbidity…","data":[33,44,31,79,423,879,1178,1512,1512,1552,1343,1379,1441,1480,1329,1230,1558,2001,2459,4035],"backgroundColor":"#dd4bb8","fullName":"Chapter XX: External causes of morbidity and mortality [V01-Y89]"},{"label":"Codes for special purposes","data":[2,1,3,2,0,5,4,5,7,13,17,26,58,112,212,379,633,845,1052,1682],"backgroundColor":"#a8e576","fullName":"Chapter XXII: Codes for special purposes [U00-U99]"}];
+
+const chart = new Chart(document.getElementById('mortChart'), {
+  type: 'bar',
+  data: { labels: ageGroups, datasets: datasets.map(d => ({ label: d.label, data: d.data, backgroundColor: d.backgroundColor })) },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { autoSkip: false, maxRotation: 60, minRotation: 60, font: { size: 11 } } },
+      y: { stacked: true, grid: { color: '#e1e0d9' }, ticks: { callback: v => v.toLocaleString() }, title: { display: true, text: 'Number of deaths' } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() } }
+    },
+    onClick: (evt, elements) => {
+      if (elements.length) selectChapter(elements[0].datasetIndex);
+    }
+  }
+});
+
+let selected = null;
+
+function applySelection() {
+  chart.data.datasets.forEach((ds, i) => {
+    chart.setDatasetVisibility(i, selected === null || selected === i);
+  });
+  chart.update();
+  document.querySelectorAll('.legend-item').forEach((el, i) => {
+    const isSel = selected === i;
+    el.style.opacity = (selected === null || isSel) ? '1' : '0.35';
+    el.style.fontWeight = isSel ? '600' : '400';
+  });
+}
+
+function selectChapter(idx) {
+  selected = (selected === idx) ? null : idx;
+  applySelection();
+}
+
+const legendEl = document.getElementById('legend');
+datasets.forEach((d, i) => {
+  const item = document.createElement('span');
+  item.className = 'legend-item';
+  item.title = d.fullName;
+  item.innerHTML = '<span class="swatch" style="background:' + d.backgroundColor + ';"></span>' + d.label;
+  item.addEventListener('click', () => selectChapter(i));
+  legendEl.appendChild(item);
+});
+</script>
+</body>
+</html>
