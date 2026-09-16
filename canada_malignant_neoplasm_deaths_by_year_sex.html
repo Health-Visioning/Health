@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Malignant neoplasm deaths by year and sex, Canada 2020-2024</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 24px; background: #ffffff; color: #0b0b0b; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  p.sub { font-size: 13px; color: #52514e; margin: 0 0 20px; }
+  .panels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .panel-title { font-size: 14px; font-weight: 600; text-align: center; margin: 0 0 8px; }
+  .chart-wrap { position: relative; height: 380px; }
+  #legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 18px; font-size: 12px; color: #333; }
+  .legend-item { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .legend-item:hover { background: #f1efe8; }
+  .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  footer { margin-top: 20px; font-size: 11px; color: #888780; }
+  @media (max-width: 900px) { .panels { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<h1>Malignant neoplasms — deaths by year and sex</h1>
+<p class="sub">Canada, 2020-2024, by sub-type [C00-C97]. Click a legend item or a bar segment to isolate that sub-type across both panels — the y-axis rescales to fit it; click again to show all. Source: Statistics Canada, Canadian Vital Statistics – Death database.</p>
+<p style="font-size:11px; color:#888780; margin:-14px 0 20px;">Mn = Malignant neoplasm(s).</p>
+
+<div class="panels">
+  <div>
+    <p class="panel-title">Males</p>
+    <div class="chart-wrap"><canvas id="chMales" role="img" aria-label="Deaths from malignant neoplasms, males, 2020 to 2024">Digestive organ and respiratory cancers are the two leading causes of male cancer deaths across all years.</canvas></div>
+  </div>
+  <div>
+    <p class="panel-title">Females</p>
+    <div class="chart-wrap"><canvas id="chFemales" role="img" aria-label="Deaths from malignant neoplasms, females, 2020 to 2024">Digestive organ and respiratory cancers lead female cancer deaths as well, with breast cancer a close third.</canvas></div>
+  </div>
+</div>
+<div id="legend"></div>
+<footer>Malignant neoplasm deaths, Canada: 43,078–45,306 (males), 38,284–40,283 (females), 2020-2024. Sex-specific cancers (breast, genital organs) show near-zero values in the opposite sex.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const years = ["2020","2021","2022","2023","2024"];
+const datasets = [{"label": "Mn of lip, oral cavity and ph…", "fullName": "Malignant neoplasms of lip, oral cavity and pharynx  [C00-C14]", "males": [1085.0, 1159.0, 1188.0, 1189.0, 1230.0], "females": [493.0, 489.0, 487.0, 540.0, 540.0], "color": "#dd4b4b"}, {"label": "Mn of digestive organs", "fullName": "Malignant neoplasms of digestive organs  [C15-C26]", "males": [13419.0, 13923.0, 13784.0, 14230.0, 14434.0], "females": [9980.0, 10259.0, 10437.0, 10582.0, 10590.0], "color": "#76e596"}, {"label": "Mn of respiratory and intrath…", "fullName": "Malignant neoplasms of respiratory and intrathoracic organs  [C30-C39]", "males": [10606.0, 10657.0, 10525.0, 10404.0, 10390.0], "females": [9483.0, 9555.0, 9660.0, 9727.0, 9614.0], "color": "#a04bdd"}, {"label": "Mn of bone and articular cart…", "fullName": "Malignant neoplasms of bone and articular cartilage  [C40-C41]", "males": [139.0, 128.0, 114.0, 109.0, 121.0], "females": [86.0, 73.0, 78.0, 90.0, 87.0], "color": "#e5d776"}, {"label": "Melanoma and other malignant…", "fullName": "Melanoma and other malignant neoplasms of skin  [C43-C44]", "males": [1111.0, 1169.0, 1238.0, 1313.0, 1344.0], "females": [627.0, 640.0, 681.0, 723.0, 755.0], "color": "#4bc4dd"}, {"label": "Mn of mesothelial and soft ti…", "fullName": "Malignant neoplasms of mesothelial and soft tissue  [C45-C49]", "males": [785.0, 799.0, 752.0, 750.0, 738.0], "females": [460.0, 393.0, 440.0, 402.0, 448.0], "color": "#e576b2"}, {"label": "Mn of breast", "fullName": "Malignant neoplasm of breast  [C50]", "males": [63.0, 65.0, 57.0, 64.0, 64.0], "females": [5220.0, 5348.0, 5476.0, 5398.0, 5385.0], "color": "#6fdd4b"}, {"label": "Mn of female genital organs", "fullName": "Malignant neoplasms of female genital organs  [C51-C58]", "males": [0.0, 0.0, 0.0, 0.0, 0.0], "females": [4077.0, 4205.0, 4345.0, 4439.0, 4494.0], "color": "#7b76e5"}, {"label": "Mn of male genital organs", "fullName": "Malignant neoplasms of male genital organs  [C60-C63]", "males": [4743.0, 4900.0, 4912.0, 4940.0, 5043.0], "females": [0.0, 0.0, 0.0, 0.0, 0.0], "color": "#dd7c4b"}, {"label": "Mn of urinary tract", "fullName": "Malignant neoplasms of urinary tract  [C64-C68]", "males": [3286.0, 3351.0, 3381.0, 3478.0, 3606.0], "females": [1472.0, 1549.0, 1549.0, 1612.0, 1604.0], "color": "#76e5bb"}, {"label": "Mn of eye, brain and other pa…", "fullName": "Malignant neoplasms of eye, brain and other parts of central nervous system  [C69-C72]", "males": [1457.0, 1362.0, 1503.0, 1485.0, 1440.0], "females": [1059.0, 1053.0, 1090.0, 1042.0, 1095.0], "color": "#d14bdd"}, {"label": "Mn of thyroid and other endoc…", "fullName": "Malignant neoplasms of thyroid and other endocrine glands  [C73-C75]", "males": [181.0, 179.0, 186.0, 170.0, 201.0], "females": [190.0, 193.0, 188.0, 230.0, 204.0], "color": "#cee576"}, {"label": "Mn of ill-defined, secondary…", "fullName": "Malignant neoplasms of ill-defined, secondary and unspecified sites  [C76-C80]", "males": [1785.0, 1931.0, 2030.0, 1922.0, 2118.0], "females": [1885.0, 2051.0, 2091.0, 2119.0, 2211.0], "color": "#4b94dd"}, {"label": "Mn of lymphoid, haematopoieti…", "fullName": "Malignant neoplasms of lymphoid, haematopoietic and related tissue  [C81-C96]", "males": [4418.0, 4428.0, 4599.0, 4618.0, 4577.0], "females": [3252.0, 3258.0, 3252.0, 3282.0, 3256.0], "color": "#e5768d"}];
+
+function buildDatasets(key) {
+  return datasets.map(d => ({ label: d.label, data: d[key], backgroundColor: d.color }));
+}
+
+function stackedMax(key) {
+  let max = 0;
+  years.forEach((y, yi) => {
+    const total = datasets.reduce((sum, d) => sum + d[key][yi], 0);
+    if (total > max) max = total;
+  });
+  return max;
+}
+
+function niceCeil(value) {
+  if (value <= 0) return 10;
+  const mag = Math.pow(10, Math.floor(Math.log10(value)));
+  const norm = value / mag;
+  let step;
+  if (norm <= 1) step = 1;
+  else if (norm <= 2) step = 2;
+  else if (norm <= 5) step = 5;
+  else step = 10;
+  return step * mag;
+}
+
+const fullMax = niceCeil(Math.max(stackedMax('males'), stackedMax('females')));
+
+function seriesMax(idx) {
+  const m = Math.max(...datasets[idx].males);
+  const f = Math.max(...datasets[idx].females);
+  return niceCeil(Math.max(m, f));
+}
+
+const opts = () => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    x: { stacked: true, grid: { display: false } },
+    y: { stacked: true, min: 0, max: fullMax, grid: { color: '#e1e0d9' }, ticks: { callback: v => v.toLocaleString() } }
+  },
+  plugins: {
+    legend: { display: false },
+    tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() } }
+  },
+  onClick: (evt, elements) => {
+    if (elements.length) selectChapter(elements[0].datasetIndex);
+  }
+});
+
+const chMales = new Chart(document.getElementById('chMales'), { type: 'bar', data: { labels: years, datasets: buildDatasets('males') }, options: opts() });
+const chFemales = new Chart(document.getElementById('chFemales'), { type: 'bar', data: { labels: years, datasets: buildDatasets('females') }, options: opts() });
+const allCharts = [chMales, chFemales];
+
+let selected = null;
+
+function applySelection() {
+  const newMax = selected === null ? fullMax : seriesMax(selected);
+  allCharts.forEach(chart => {
+    chart.data.datasets.forEach((ds, i) => chart.setDatasetVisibility(i, selected === null || selected === i));
+    chart.options.scales.y.max = newMax;
+    chart.update();
+  });
+  document.querySelectorAll('.legend-item').forEach((el, i) => {
+    const isSel = selected === i;
+    el.style.opacity = (selected === null || isSel) ? '1' : '0.35';
+    el.style.fontWeight = isSel ? '600' : '400';
+  });
+}
+
+function selectChapter(idx) {
+  selected = (selected === idx) ? null : idx;
+  applySelection();
+}
+
+const legendEl = document.getElementById('legend');
+datasets.forEach((d, i) => {
+  const item = document.createElement('span');
+  item.className = 'legend-item';
+  item.title = d.fullName;
+  item.innerHTML = '<span class="swatch" style="background:' + d.color + ';"></span>' + d.label;
+  item.addEventListener('click', () => selectChapter(i));
+  legendEl.appendChild(item);
+});
+</script>
+</body>
+</html>
