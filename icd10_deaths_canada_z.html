@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deaths by Cause — Canada, ICD-10, 2000–2024</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F8F7F4;
+  --panel:#FCFBF9;
+  --ink:#1C1F26;
+  --ink-soft:#454B54;
+  --muted:#767D87;
+  --hairline:#E3E0D6;
+  --teal:#22514F;
+  --teal-soft:#E7EFEE;
+  --teal-tint:#F1F5F4;
+  --accent-line:#B9483A;
+  --yellow-bg:#F6C453;
+  --yellow-ink:#4A3600;
+  --red-bg:#C8432F;
+  --red-ink:#FFFFFF;
+  --avg-col:#EFEAF9;
+  --base-col:#EEF1EF;
+  --pandemic-line:#7A5CC0;
+  --callout-bg:#FBF3E4;
+  --callout-border:#D9A441;
+  --method-bg:#EAF1F3;
+  --method-border:#6D95A0;
+  --radius-s:3px;
+}
+:root[data-theme="dark"]{
+  --paper:#14171B; --panel:#1B1F24; --ink:#EDEEF0; --ink-soft:#C7CBD1; --muted:#8A9099;
+  --hairline:#2C3138; --teal:#6FB3AC; --teal-soft:#1E2C2B; --teal-tint:#182220;
+  --accent-line:#D97862; --yellow-bg:#8A6A1E; --yellow-ink:#FFF4D6; --red-bg:#7E2C20;
+  --red-ink:#FFEAE5; --avg-col:#241F30; --base-col:#1D2422; --pandemic-line:#9C82D9;
+  --callout-bg:#241F14; --callout-border:#8A6A1E; --method-bg:#182226; --method-border:#4C7480;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);}
+body{ font-family:'Inter',system-ui,-apple-system,sans-serif; font-size:13.5px; -webkit-font-smoothing:antialiased; }
+
+.wrap{max-width:1520px;margin:0 auto;padding:28px 20px 60px;}
+
+header.page{margin-bottom:18px;}
+.eyebrow-row{ display:flex;align-items:baseline;gap:10px;flex-wrap:wrap; color:var(--muted); font-size:12px; margin-bottom:6px; }
+h1{ font-family:'Lora',Georgia,serif; font-weight:600; font-size:26px; line-height:1.25; margin:0 0 6px 0; letter-spacing:-0.01em; max-width:76ch; }
+.dek{ color:var(--ink-soft); font-size:14px; max-width:82ch; line-height:1.55; margin:0 0 14px 0; }
+.dek strong{color:var(--ink);font-weight:600;}
+
+.callout{
+  border-radius:4px; padding:12px 16px; margin:0 0 14px 0; max-width:96ch;
+  border:1px solid var(--callout-border); border-left:4px solid var(--callout-border); background:var(--callout-bg);
+}
+.callout.method{ border-color:var(--method-border); background:var(--method-bg); }
+.callout h2{ font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; margin:0 0 6px 0; color:var(--ink); }
+.callout p{ margin:0 0 8px 0; font-size:12.5px; line-height:1.6; color:var(--ink-soft); }
+.callout p:last-child{margin-bottom:0;}
+.callout strong{color:var(--ink);}
+.callout code{ font-family:'IBM Plex Mono',monospace; background:rgba(0,0,0,0.06); padding:1px 4px; border-radius:2px; font-size:11px; }
+.callout ul{ margin:6px 0 8px 0; padding-left:18px; }
+.callout li{ font-size:12.5px; line-height:1.6; color:var(--ink-soft); margin-bottom:3px; }
+
+.controls-row{
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); padding:12px 0;
+}
+.btn-group{display:flex; gap:8px;}
+button.util{
+  font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; padding:7px 13px;
+  background:var(--panel); color:var(--ink-soft); border:1px solid var(--hairline);
+  border-radius:var(--radius-s); cursor:pointer; transition:background .12s ease, color .12s ease, border-color .12s ease;
+}
+button.util:hover{background:var(--teal-tint); color:var(--teal); border-color:var(--teal);}
+button.util.active{background:var(--teal); color:#fff; border-color:var(--teal);}
+
+.legend{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); }
+.legend-item{display:flex;align-items:center;gap:7px;}
+.swatch{width:13px;height:13px;border-radius:2px;display:inline-block;flex:none;}
+.swatch.y{background:var(--yellow-bg);}
+.swatch.r{background:var(--red-bg);}
+.swatch.a{background:var(--avg-col); border:1px solid var(--hairline);}
+.swatch.b{background:var(--base-col); border:1px solid var(--hairline);}
+.swatch.p{background:var(--panel); border-top:2.5px solid var(--pandemic-line); border-left:1px solid var(--hairline); border-right:1px solid var(--hairline); border-bottom:1px solid var(--hairline);}
+
+.table-scroll{ overflow-x:auto; overflow-y:visible; margin-top:0; border:1px solid var(--hairline); border-top:none; background:var(--panel); }
+
+table{ border-collapse:separate; border-spacing:0; width:100%; min-width:1280px; }
+table.early-collapsed{ min-width:920px; }
+
+thead th{
+  position:sticky; top:0; z-index:3; background:var(--panel); border-bottom:2px solid var(--ink);
+  padding:10px 8px; font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:11.5px;
+  color:var(--muted); text-align:right; white-space:nowrap;
+}
+thead th.rowlabel-head{
+  position:sticky; left:0; top:0; z-index:4; text-align:left; background:var(--panel);
+  font-family:'Inter',sans-serif; font-weight:600; font-size:11.5px; color:var(--ink-soft);
+  min-width:400px; padding-left:14px; border-right:1px solid var(--hairline);
+}
+thead th.pandemic-year{ border-top:2.5px solid var(--pandemic-line); }
+thead th.avg-col{ background:var(--avg-col); color:var(--ink); border-left:2px solid var(--hairline); font-weight:700; }
+thead th.base-col{ background:var(--base-col); color:var(--ink); font-weight:700; border-right:2px solid var(--hairline); display:none; }
+thead tr.period-row th{
+  position:sticky; top:0; z-index:3; background:var(--panel); border-bottom:none; padding:2px 8px 0;
+  font-family:'Inter',sans-serif; font-size:9.5px; font-weight:600; color:var(--pandemic-line);
+  text-align:center; letter-spacing:.02em; height:16px;
+}
+thead tr.period-row th.rowlabel-head{ background:var(--panel); border-right:1px solid var(--hairline); }
+thead tr.period-row th.avg-col{ background:var(--panel); border-left:2px solid var(--hairline); }
+thead tr.period-row th.base-col{ background:var(--panel); border-right:2px solid var(--hairline); }
+
+tbody th.rowlabel{
+  position:sticky; left:0; z-index:2; background:var(--panel); text-align:left; padding:0;
+  border-right:1px solid var(--hairline); min-width:400px; max-width:400px;
+}
+tbody td{
+  text-align:right; padding:6px 8px; font-family:'IBM Plex Mono', monospace; font-size:12px;
+  font-variant-numeric:tabular-nums; white-space:nowrap; border-bottom:1px solid var(--hairline); color:var(--ink-soft);
+}
+tbody td.pandemic-year{ box-shadow: inset 0 2px 0 0 var(--pandemic-line); }
+tbody td.avg-col{ background:var(--avg-col); border-left:2px solid var(--hairline); font-weight:600; color:var(--ink); }
+tbody td.base-col{ background:var(--base-col); font-weight:600; color:var(--ink); border-right:2px solid var(--hairline); font-style:italic; display:none; }
+
+.early-year{ display:table-cell; }
+table.early-collapsed .early-year{ display:none; }
+table.early-collapsed th.base-col,
+table.early-collapsed td.base-col{ display:table-cell; }
+
+tr.node-row.total-row td, tr.node-row.total-row th.rowlabel{
+  border-top:2px solid var(--ink); border-bottom:2px solid var(--ink);
+}
+tr.node-row.total-row .label-inner{ font-weight:700; }
+tr.node-row[data-depth="0"] td, tr.node-row[data-depth="0"] th.rowlabel{
+  border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); background:var(--teal-soft);
+}
+tr.node-row[data-depth="0"] td.avg-col{ background:color-mix(in srgb, var(--teal-soft) 45%, var(--avg-col)); }
+tr.node-row[data-depth="0"] td.base-col{ background:color-mix(in srgb, var(--teal-soft) 45%, var(--base-col)); }
+tr.node-row[data-depth="0"] td{ color:var(--ink); font-weight:600; }
+tr.node-row[data-depth="0"] .label-inner{ font-family:'Lora',serif; font-weight:600; font-size:13px; color:var(--ink); padding:9px 10px 9px 8px; }
+
+tr.node-row[data-depth="1"]{ display:none; }
+tr.node-row[data-depth="1"].open{ display:table-row; }
+tr.node-row[data-depth="1"] td, tr.node-row[data-depth="1"] th.rowlabel{ background:var(--panel); }
+tr.node-row[data-depth="1"] .label-inner{ padding:6px 10px 6px 32px; font-size:12.5px; color:var(--ink-soft); }
+tr.node-row[data-depth="1"].has-kids .label-inner{ font-weight:600; color:var(--ink);}
+tr.node-row[data-depth="1"]:hover td, tr.node-row[data-depth="1"]:hover th.rowlabel{ background:var(--teal-tint); }
+tr.node-row[data-depth="1"]:hover td.avg-col{ background: color-mix(in srgb, var(--teal-tint) 45%, var(--avg-col)); }
+tr.node-row[data-depth="1"]:hover td.base-col{ background: color-mix(in srgb, var(--teal-tint) 45%, var(--base-col)); }
+
+tr.node-row[data-depth="2"]{ display:none; }
+tr.node-row[data-depth="2"].open{ display:table-row; }
+tr.node-row[data-depth="2"] td, tr.node-row[data-depth="2"] th.rowlabel{ background:var(--panel); }
+tr.node-row[data-depth="2"] .label-inner{ padding:5px 10px 5px 54px; font-size:12px; color:var(--muted); }
+tr.node-row[data-depth="2"]:hover td, tr.node-row[data-depth="2"]:hover th.rowlabel{ background:var(--teal-tint); }
+tr.node-row[data-depth="2"]:hover td.avg-col{ background: color-mix(in srgb, var(--teal-tint) 45%, var(--avg-col)); }
+tr.node-row[data-depth="2"]:hover td.base-col{ background: color-mix(in srgb, var(--teal-tint) 45%, var(--base-col)); }
+
+.label-inner{ display:flex; align-items:baseline; gap:8px; }
+.code{ font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:10.5px; color:var(--muted); white-space:nowrap; }
+
+.chevron{
+  flex:none; width:8px; height:8px; margin-right:1px;
+  border-right:1.5px solid var(--ink-soft); border-bottom:1.5px solid var(--ink-soft);
+  transform:rotate(-45deg); transition:transform .15s ease; cursor:pointer;
+}
+.chevron.spacer{ border:none; width:8px; }
+tr.expanded > th.rowlabel .chevron{ transform:rotate(45deg); }
+tr.node-row.has-kids{cursor:pointer;}
+
+td.z-yellow{ background:var(--yellow-bg) !important; color:var(--yellow-ink) !important; font-weight:600; border-radius:var(--radius-s); }
+td.z-red{ background:var(--red-bg) !important; color:var(--red-ink) !important; font-weight:600; border-radius:var(--radius-s); }
+
+td.z-flag{ position:relative; cursor:help; }
+td.z-flag .ztip{
+  visibility:hidden; opacity:0; position:absolute; bottom:130%; right:0;
+  background:var(--ink); color:var(--paper); font-family:'Inter',sans-serif; font-weight:500;
+  font-size:11px; padding:5px 8px; border-radius:4px; white-space:nowrap; z-index:10;
+  transition:opacity .1s ease; pointer-events:none;
+}
+td.z-flag:hover .ztip{ visibility:visible; opacity:1; }
+
+.foot-note{ margin-top:16px; font-size:11.5px; color:var(--muted); line-height:1.6; max-width:88ch; }
+.foot-note code{ font-family:'IBM Plex Mono',monospace; background:var(--teal-tint); padding:1px 4px; border-radius:2px; font-size:10.5px; }
+.foot-note + .foot-note{margin-top:8px;}
+
+::-webkit-scrollbar{height:10px; width:10px;}
+::-webkit-scrollbar-track{background:var(--paper);}
+::-webkit-scrollbar-thumb{background:var(--hairline); border-radius:5px;}
+::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <div class="eyebrow-row">Statistics Canada · Table 13-10-0141 to 13-10-0782 · Deaths by cause, both sexes, all ages</div>
+    <h1>Causes of death in Canada by ICD-10 chapter, 2000–2024</h1>
+    <p class="dek">Chapters are shown collapsed by default — click a row with a chevron to reveal what's underneath (the Neoplasms chapter nests two levels deep). All years 2000–2024 are shown individually by default; use <strong>"Collapse 2000–19"</strong> to condense that span into a single mean column. The <strong>"2020–24 avg"</strong> column is flagged <strong>yellow</strong> where |z| is 2.0–2.99, and <strong>red</strong> where |z| ≥ 3.0 — hover a flagged cell for the exact score. Sub-group and site-level rows whose 2022 count fell under 100 have been removed table-wide.</p>
+  </header>
+
+  <div class="callout method">
+    <h2>Methodology: empirical rolling-window z-score</h2>
+    <p>Earlier versions compared the 2020–2024 average to a flat 2000–2019 mean, then to a linear-trend projection — but the trend version's standard error assumed pre-pandemic years were statistically independent, which annual death counts generally aren't. The current method avoids that assumption by measuring variability directly from history: for every row, we fit a straight-line trend through 2000–2019, then look at all <strong>16 overlapping 5-year windows</strong> that fit inside that span (2000–04, 2001–05, … 2015–19) and calculate how far each window's average actually fell from the trend line. That spread <em>is</em> the benchmark — however much real 5-year averages naturally wandered before the pandemic, whatever the cause. The 2020–2024 average is then scored as a z-score against that empirical spread, rather than against a formula's assumption about it.</p>
+    <p>One safeguard was necessary: a handful of rows (125 of roughly 260) have unusually smooth historical trends with very little natural year-to-year noise, which makes the empirical spread artificially tiny and can inflate a modest deviation into a triple-digit z-score. For those rows, the z-score's denominator is <strong>floored at a standard regression-theory estimate</strong> (accounting for the correct degrees of freedom and the extra uncertainty of extrapolating the trend forward to 2022) whenever that estimate is larger than the empirical one — so no row's flag can rest on an unrealistically small denominator.</p>
+    <p><strong>What this table is, and isn't:</strong> roughly 90 of ~260 rows flag yellow or red. With that many comparisons running at once, a handful of yellow flags would appear by chance alone even if nothing pandemic-related had happened anywhere — so treat every flag as "worth a second look," not as a proven anomaly, and treat the strength of a red flag as suggestive rather than confirmatory. This is a screening tool built from crude, non-age-standardized annual counts — it's well suited to surfacing which sub-groups deserve closer investigation, not to making a statistically airtight causal claim about any one of them.</p>
+  </div>
+
+  <div class="callout">
+    <h2>About the pandemic-period marker</h2>
+    <p>Columns for <strong>2020–2022</strong> carry a purple top-border — Canada's national COVID-19 emergency response ran through this window, and it's the period the excess-mortality literature generally treats as pandemic-affected. It's a visual reference band only, not a statistical adjustment.</p>
+    <p><strong>This table still cannot tell you whether COVID-19 vaccination influenced any of these counts.</strong> These are aggregate counts by ICD-10 <em>cause-of-death chapter</em> — there is no vaccination-status field anywhere in the source data, and no code here specifically captures a vaccine adverse event. A flagged row is far more parsimoniously explained by COVID-19 infection itself, its downstream health effects, and pandemic-era disruption to care than by vaccination — Health Canada's CAEFISS surveillance is the appropriate source for vaccine-specific safety signals, not this dataset.</p>
+  </div>
+
+  <div class="controls-row">
+    <div class="btn-group">
+      <button class="util" id="expandAll">Expand all</button>
+      <button class="util" id="collapseAll">Collapse all</button>
+      <button class="util" id="toggleEarly">Collapse 2000–19</button>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="swatch p"></span>2020–2022 pandemic period</div>
+      <div class="legend-item"><span class="swatch a"></span>2020–24 avg vs. empirical benchmark</div>
+      <div class="legend-item"><span class="swatch y"></span>|z| = 2.0 – 2.99</div>
+      <div class="legend-item"><span class="swatch r"></span>|z| ≥ 3.0</div>
+    </div>
+  </div>
+
+  <div class="table-scroll">
+    <table id="mainTable">
+      <thead>
+        <tr class="period-row" id="periodRow"><th class="rowlabel-head"></th></tr>
+        <tr id="headRow">
+          <th class="rowlabel-head">ICD-10 chapter / sub-group</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <p class="foot-note">
+    Counts are annual numbers of deaths (all ages, both sexes) for Canada. The z-score in the "2020–24 avg" column is
+    <code>(mean(2020–24) − mean(trend deviation across 16 historical 5-year windows)) / max(empirical window SD, regression-theory floor)</code>.
+    2024 figures are preliminary per the source tables.
+  </p>
+  <p class="foot-note">
+    Source: Statistics Canada, Canadian Vital Statistics – Death Database (CVSD), Tables 13-10-0141-01 through 13-10-0782-01.
+    Pandemic-period framing follows the Public Health Agency of Canada's federal emergency response timeline; it is provided for
+    visual reference and does not imply attribution to any specific cause, including vaccination.
+  </p>
+</div>
+
+<script>
+const DATA = {"years":["2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],"chapters":[{"name":"Total, all causes of death","code":"A00-Y89","values":[218362,219950,224002,226584,226828,230561,228532,235422,238737,238656,240253,243704,246887,252423,258899,264525,267622,278590,286006,285611,308824,313268,338217,327546,326779],"subgroups":[],"file":"all-causes total","mean_2000_19":245607.7,"avg2020_24":322926.8,"trend_pred":289440.09,"resid_stdev":3821.31,"z_avg":9.159},{"name":"Chapter I: Certain infectious and parasitic diseases","code":"A00-B99","values":[3116.0,3048.0,3279.0,3584.0,3992.0,4159.0,4226.0,4646.0,4654.0,5027.0,5318.0,5680.0,5794.0,4890.0,4879.0,4972.0,4173.0,4300.0,4600.0,4384.0,4475.0,4244.0,4875.0,5537.0,5687.0],"subgroups":[{"name":"Intestinal infectious diseases","code":"A00-A09","values":[250.0,301.0,365.0,585.0,1028.0,971.0,929.0,1166.0,1072.0,1384.0,1647.0,1818.0,1712.0,1209.0,1136.0,1105.0,962.0,918.0,889.0,816.0,798.0,673.0,803.0,984.0,1045.0],"avg2020_24":860.6,"z_avg":-2.4119452605382388,"mean_2000_19":1013.15,"trend_pred":1421.693233082704,"resid_stdev":275.7289910195956},{"name":"Tuberculosis","code":"A15-A19","values":[81.0,108.0,102.0,94.0,70.0,88.0,90.0,90.0,92.0,62.0,67.0,76.0,69.0,82.0,81.0,107.0,89.0,90.0,84.0,71.0,99.0,111.0,123.0,101.0,103.0],"avg2020_24":107.4,"z_avg":3.3478439813698557,"mean_2000_19":84.65,"trend_pred":78.04285714285743,"resid_stdev":8.985527110744831},{"name":"Other bacterial diseases","code":"A30-A49","values":[1485.0,1501.0,1591.0,1663.0,1703.0,1801.0,1938.0,2103.0,2253.0,2351.0,2383.0,2610.0,2756.0,2434.0,2481.0,2608.0,2081.0,2294.0,2538.0,2499.0,2642.0,2523.0,2816.0,3085.0,3194.0],"avg2020_24":2852.0,"z_avg":-0.42060277365625315,"mean_2000_19":2153.65,"trend_pred":2875.351127819551,"resid_stdev":159.71394395618606},{"name":"Viral infections of the central nervous system","code":"A80-A89","values":[54.0,60.0,61.0,48.0,67.0,59.0,66.0,58.0,80.0,84.0,68.0,79.0,97.0,77.0,95.0,80.0,96.0,105.0,121.0,111.0,94.0,114.0,135.0,130.0,115.0],"avg2020_24":117.6,"z_avg":0.30657004910214336,"mean_2000_19":78.3,"trend_pred":117.05939849624065,"resid_stdev":6.370816423455468},{"name":"Viral infections characterized by skin and mucous membrane lesions","code":"B00-B09","values":[37.0,48.0,59.0,46.0,57.0,38.0,69.0,61.0,50.0,61.0,58.0,73.0,84.0,72.0,65.0,56.0,62.0,73.0,77.0,79.0,97.0,84.0,116.0,111.0,100.0],"avg2020_24":101.6,"z_avg":3.1049086840089943,"mean_2000_19":61.25,"trend_pred":81.39097744360879,"resid_stdev":6.452370937532252},{"name":"Viral hepatitis","code":"B15-B19","values":[139.0,321.0,380.0,395.0,409.0,398.0,457.0,463.0,454.0,476.0,486.0,466.0,526.0,540.0,557.0,529.0,451.0,374.0,360.0,311.0,264.0,272.0,216.0,257.0,228.0],"avg2020_24":247.4,"z_avg":-4.397076622403402,"mean_2000_19":424.6,"trend_pred":502.2503759398496,"resid_stdev":64.48326929196666},{"name":"Human immunodeficiency virus [HIV] disease","code":"B20-B24","values":[511.0,435.0,407.0,442.0,420.0,469.0,429.0,417.0,398.0,348.0,337.0,307.0,278.0,241.0,206.0,192.0,175.0,143.0,142.0,105.0,136.0,137.0,137.0,126.0,128.0],"avg2020_24":132.8,"z_avg":2.6842166559019054,"mean_2000_19":320.1,"trend_pred":63.5586466165405,"resid_stdev":23.513881878604725},{"name":"Other viral diseases","code":"B25-B34","values":[66.0,52.0,53.0,77.0,63.0,78.0,51.0,66.0,59.0,53.0,69.0,73.0,70.0,43.0,57.0,71.0,64.0,79.0,136.0,128.0,119.0,72.0,161.0,361.0,429.0],"avg2020_24":228.4,"z_avg":9.606044144690582,"mean_2000_19":70.4,"trend_pred":96.22706766917281,"resid_stdev":14.197876907135596},{"name":"Mycoses","code":"B35-B49","values":[101.0,74.0,73.0,48.0,54.0,54.0,44.0,63.0,56.0,63.0,48.0,51.0,58.0,67.0,65.0,83.0,70.0,84.0,95.0,112.0,78.0,132.0,135.0,150.0,131.0],"avg2020_24":125.2,"z_avg":3.8438418277295034,"mean_2000_19":68.15,"trend_pred":82.6330827067668,"resid_stdev":12.46589205298722},{"name":"Other infectious diseases","code":"B99","values":[55.0,32.0,39.0,31.0,14.0,33.0,31.0,33.0,34.0,34.0,37.0,35.0,44.0,50.0,53.0,69.0,50.0,75.0,79.0,97.0,90.0,84.0,151.0,160.0,142.0],"avg2020_24":125.4,"z_avg":5.299175658123557,"mean_2000_19":46.25,"trend_pred":77.85714285714312,"resid_stdev":9.738374508070326}],"file":"1310014101-noSymbol.csv","avg2020_24":4963.6,"z_avg":-1.3718392448141326,"mean_2000_19":4436.05,"trend_pred":5417.863909774402,"resid_stdev":448.33161910144787},{"name":"Chapter II: Neoplasms","code":"C00-D48","values":[64158.0,65262.0,66617.0,67468.0,68337.0,68807.0,69246.0,71026.0,71961.0,72580.0,73238.0,74177.0,75847.0,76666.0,78547.0,78613.0,80774.0,81697.0,81569.0,82246.0,83233.0,84918.0,85884.0,86881.0,87524.0],"subgroups":[{"name":"Malignant neoplasms","code":"C00-C97","values":[62717.0,63830.0,65128.0,66036.0,66962.0,67360.0,67831.0,69603.0,70575.0,71132.0,71887.0,72740.0,74377.0,75131.0,77009.0,77087.0,79141.0,80088.0,79815.0,80476.0,81362.0,83118.0,84043.0,84858.0,85589.0],"range":[["C",0,0],["C",97,0]],"children":[{"name":"Malignant neoplasms of lip, oral cavity and pharynx","code":"C00-C14","values":[902.0,1030.0,1089.0,1018.0,1067.0,1053.0,1025.0,1120.0,1115.0,1072.0,1150.0,1191.0,1123.0,1344.0,1376.0,1333.0,1529.0,1469.0,1530.0,1479.0,1578.0,1648.0,1675.0,1729.0,1770.0],"range":[["C",0,0],["C",14,0]],"avg2020_24":1680.0,"z_avg":2.1498248332373744,"mean_2000_19":1200.75,"trend_pred":1578.5037593984962,"resid_stdev":52.1652921985379},{"name":"Malignant neoplasms of digestive organs","code":"C15-C26","values":[16553.0,16621.0,17048.0,17298.0,17764.0,18025.0,18041.0,18648.0,19024.0,19044.0,19271.0,19954.0,20321.0,21222.0,21576.0,21638.0,22439.0,22544.0,22727.0,23026.0,23399.0,24182.0,24221.0,24812.0,25024.0],"range":[["C",15,0],["C",26,0]],"avg2020_24":24327.6,"z_avg":0.9034724261078179,"mean_2000_19":19639.2,"trend_pred":24190.741353383404,"resid_stdev":186.02797579623802},{"name":"Malignant neoplasms of respiratory and intrathoracic organs","code":"C30-C39","values":[16784.0,17224.0,17804.0,17983.0,18241.0,18509.0,18809.0,19176.0,19358.0,19755.0,19889.0,19843.0,20271.0,20271.0,20958.0,20703.0,20696.0,20870.0,20618.0,20355.0,20089.0,20212.0,20185.0,20131.0,20004.0],"range":[["C",30,0],["C",39,0]],"avg2020_24":20124.2,"z_avg":-6.892935482569058,"mean_2000_19":19405.85,"trend_pred":21973.772932330787,"resid_stdev":286.47779125807284},{"name":"Malignant neoplasms of bone and articular cartilage","code":"C40-C41","values":[147.0,150.0,129.0,136.0,127.0,147.0,138.0,160.0,149.0,153.0,183.0,165.0,152.0,173.0,180.0,198.0,172.0,187.0,182.0,180.0,225.0,201.0,192.0,199.0,208.0],"range":[["C",40,0],["C",41,0]],"avg2020_24":205.0,"z_avg":1.0632481894705674,"mean_2000_19":160.4,"trend_pred":196.7721804511275,"resid_stdev":8.161612344896465},{"name":"Melanoma and other malignant neoplasms of skin","code":"C43-C44","values":[906.0,894.0,978.0,969.0,1012.0,1018.0,1128.0,1178.0,1219.0,1394.0,1360.0,1335.0,1461.0,1486.0,1568.0,1578.0,1559.0,1606.0,1617.0,1762.0,1738.0,1809.0,1919.0,2036.0,2099.0],"range":[["C",43,0],["C",44,0]],"avg2020_24":1920.2,"z_avg":1.270463952837401,"mean_2000_19":1301.4,"trend_pred":1875.2345864661474,"resid_stdev":34.14336427016445},{"name":"Malignant neoplasms of mesothelial and soft tissue","code":"C45-C49","values":[741.0,724.0,772.0,810.0,856.0,880.0,909.0,928.0,976.0,986.0,1047.0,995.0,1132.0,1140.0,1104.0,1195.0,1208.0,1182.0,1228.0,1210.0,1245.0,1192.0,1192.0,1152.0,1186.0],"range":[["C",45,0],["C",49,0]],"avg2020_24":1193.4,"z_avg":-7.410931501601969,"mean_2000_19":1001.15,"trend_pred":1351.7421052631616,"resid_stdev":22.10310609776283},{"name":"Malignant neoplasm of breast","code":"C50","values":[4907.0,5021.0,5018.0,5100.0,4999.0,5045.0,4892.0,5118.0,5017.0,5004.0,5024.0,5015.0,5022.0,5056.0,5181.0,5188.0,5355.0,5396.0,5335.0,5328.0,5283.0,5413.0,5533.0,5462.0,5449.0],"range":[["C",50,0],["C",50,0]],"avg2020_24":5428.0,"z_avg":1.4643925598779213,"mean_2000_19":5101.05,"trend_pred":5348.296240601507,"resid_stdev":65.26853660501203},{"name":"Malignant neoplasms of female genital organs","code":"C51-C58","values":[2604.0,2683.0,2800.0,2855.0,2883.0,2852.0,2905.0,2950.0,3000.0,3080.0,3166.0,3243.0,3319.0,3434.0,3503.0,3770.0,3730.0,3850.0,3782.0,3933.0,4077.0,4206.0,4345.0,4439.0,4494.0],"range":[["C",51,0],["C",58,0]],"avg2020_24":4312.2,"z_avg":3.7584733046566576,"mean_2000_19":3217.1,"trend_pred":4091.5172932331043,"resid_stdev":62.327888953385866},{"name":"Malignant neoplasms of male genital organs","code":"C60-C63","values":[3794.0,3891.0,3779.0,3736.0,3758.0,3661.0,3632.0,3705.0,3811.0,3815.0,3924.0,3802.0,3814.0,4034.0,4223.0,4127.0,4337.0,4437.0,4437.0,4631.0,4743.0,4900.0,4912.0,4940.0,5043.0],"range":[["C",60,0],["C",63,0]],"avg2020_24":4907.6,"z_avg":4.014742864226966,"mean_2000_19":3967.4,"trend_pred":4488.321052631567,"resid_stdev":116.39386709724036},{"name":"Malignant neoplasms of urinary tract","code":"C64-C68","values":[2850.0,2891.0,2968.0,3066.0,3207.0,3189.0,3284.0,3396.0,3683.0,3649.0,3727.0,3639.0,3899.0,4105.0,4229.0,4280.0,4490.0,4634.0,4656.0,4725.0,4758.0,4900.0,4930.0,5090.0,5210.0],"range":[["C",64,0],["C",68,0]],"avg2020_24":4977.6,"z_avg":-0.6129672401527677,"mean_2000_19":3728.35,"trend_pred":5030.069924812036,"resid_stdev":62.47466798142966},{"name":"Malignant neoplasms of eye, brain and other parts of central nervous system","code":"C69-C72","values":[1566.0,1583.0,1558.0,1622.0,1637.0,1609.0,1703.0,1792.0,1917.0,1904.0,1940.0,2003.0,2033.0,2169.0,2233.0,2276.0,2281.0,2379.0,2293.0,2343.0,2516.0,2415.0,2593.0,2527.0,2535.0],"range":[["C",69,0],["C",72,0]],"avg2020_24":2517.2,"z_avg":-0.8474812831871591,"mean_2000_19":1942.05,"trend_pred":2554.0894736842165,"resid_stdev":40.578446234094116},{"name":"Malignant neoplasms of thyroid and other endocrine glands","code":"C73-C75","values":[202.0,215.0,221.0,226.0,251.0,224.0,246.0,265.0,251.0,276.0,286.0,273.0,282.0,302.0,352.0,320.0,331.0,333.0,355.0,337.0,371.0,372.0,374.0,400.0,405.0],"range":[["C",73,0],["C",75,0]],"avg2020_24":384.4,"z_avg":0.8995544719019778,"mean_2000_19":277.4,"trend_pred":375.65187969924773,"resid_stdev":9.488719768914837},{"name":"Malignant neoplasms of ill-defined, secondary and unspecified sites","code":"C76-C80","values":[3954.0,3992.0,4044.0,3928.0,3915.0,3908.0,4009.0,3912.0,3827.0,3438.0,3513.0,3598.0,3594.0,3412.0,3457.0,3380.0,3718.0,3583.0,3584.0,3743.0,3670.0,3982.0,4121.0,4041.0,4329.0],"range":[["C",76,0],["C",80,0]],"avg2020_24":4028.6,"z_avg":6.190775180331645,"mean_2000_19":3725.45,"trend_pred":3378.504511278188,"resid_stdev":108.86084037794156},{"name":"Malignant neoplasms of lymphoid, haematopoietic and related tissue","code":"C81-C96","values":[5826.0,5929.0,5961.0,6248.0,6288.0,6167.0,6126.0,6369.0,6298.0,6581.0,6326.0,6653.0,6888.0,6983.0,7069.0,7101.0,7296.0,7618.0,7471.0,7424.0,7670.0,7686.0,7851.0,7900.0,7833.0],"range":[["C",81,0],["C",96,0]],"avg2020_24":7788.0,"z_avg":0.29592826838760644,"mean_2000_19":6631.1,"trend_pred":7773.205263157899,"resid_stdev":104.06149101571}],"avg2020_24":83794.0,"z_avg":-0.6180569669418936,"mean_2000_19":71946.25,"trend_pred":84017.36842105258,"resid_stdev":353.49641333800815},{"name":"Benign neoplasms","code":"D10-D36","values":[184.0,191.0,190.0,197.0,177.0,201.0,187.0,191.0,183.0,242.0,218.0,201.0,218.0,219.0,237.0,224.0,233.0,242.0,245.0,244.0,270.0,282.0,283.0,320.0,279.0],"range":[["D",10,0],["D",36,0]],"children":[{"name":"Benign neoplasm of meninges","code":"D32","values":[98.0,115.0,118.0,123.0,109.0,118.0,109.0,105.0,93.0,143.0,115.0,116.0,129.0,132.0,135.0,139.0,134.0,152.0,152.0,161.0,160.0,169.0,173.0,201.0,180.0],"range":[["D",32,0],["D",32,0]],"avg2020_24":176.6,"z_avg":2.754026309135107,"mean_2000_19":124.8,"trend_pred":155.66466165413567,"resid_stdev":8.228076206352913}],"avg2020_24":286.8,"z_avg":3.922419246039415,"mean_2000_19":211.2,"trend_pred":253.83157894736814,"resid_stdev":8.691937020005438},{"name":"Neoplasms of uncertain or unknown behaviour","code":"D37-D48","values":[1255.0,1240.0,1298.0,1235.0,1196.0,1246.0,1228.0,1228.0,1202.0,1206.0,1131.0,1233.0,1251.0,1313.0,1300.0,1297.0,1396.0,1362.0,1504.0,1523.0,1594.0,1514.0,1552.0,1699.0,1652.0],"range":[["D",37,0],["D",48,0]],"children":[{"name":"Neoplasm of uncertain or unknown behaviour of brain and central nervous system","code":"D43","values":[341.0,324.0,340.0,307.0,306.0,304.0,272.0,277.0,236.0,216.0,184.0,194.0,189.0,168.0,160.0,165.0,199.0,161.0,151.0,149.0,150.0,130.0,147.0,168.0,160.0],"range":[["D",43,0],["D",43,0]],"avg2020_24":151.0,"z_avg":4.1355296771430075,"mean_2000_19":232.15,"trend_pred":92.572932330826,"resid_stdev":14.883720460131459},{"name":"Myelodysplastic syndromes","code":"D46","values":[422.0,427.0,429.0,425.0,406.0,430.0,435.0,472.0,466.0,526.0,500.0,591.0,597.0,651.0,656.0,640.0,680.0,668.0,751.0,774.0,812.0,773.0,802.0,841.0,782.0],"range":[["D",46,0],["D",46,0]],"avg2020_24":802.0,"z_avg":0.6779666905009911,"mean_2000_19":547.3,"trend_pred":793.4466165413542,"resid_stdev":24.987781399892164},{"name":"Other neoplasms of uncertain or unknown behaviour of lymphoid, haematopoietic and related tissue","code":"D47","values":[220.0,209.0,227.0,232.0,223.0,247.0,244.0,212.0,232.0,224.0,213.0,219.0,226.0,226.0,222.0,244.0,258.0,277.0,320.0,329.0,406.0,367.0,388.0,418.0,422.0],"range":[["D",47,0],["D",47,0]],"avg2020_24":400.2,"z_avg":6.709171615533721,"mean_2000_19":240.2,"trend_pred":286.6849624060151,"resid_stdev":17.80809084050836}],"avg2020_24":1602.2,"z_avg":3.8166158879616505,"mean_2000_19":1282.2,"trend_pred":1422.7827067669168,"resid_stdev":52.41680040794678}],"file":"1310014201-noSymbol_1_.csv","avg2020_24":85688.0,"z_avg":0.0445074278878566,"mean_2000_19":73441.8,"trend_pred":85698.52932330826,"resid_stdev":365.2913112092214},{"name":"Chapter III: Diseases of blood and blood-forming organs and certain disorders involving the immune mechanism","code":"D50-D89","values":[783.0,852.0,870.0,935.0,800.0,900.0,761.0,899.0,963.0,974.0,934.0,955.0,881.0,919.0,876.0,906.0,836.0,973.0,962.0,947.0,1019.0,1056.0,1152.0,1102.0,1060.0],"subgroups":[{"name":"Aplastic and other anaemias","code":"D60-D64","values":[366.0,410.0,437.0,451.0,356.0,414.0,320.0,414.0,427.0,444.0,401.0,457.0,414.0,416.0,384.0,410.0,420.0,454.0,434.0,472.0,506.0,527.0,545.0,556.0,487.0],"avg2020_24":524.2,"z_avg":3.3494213836936275,"mean_2000_19":415.05,"trend_pred":446.22481203007555,"resid_stdev":24.16094563792473},{"name":"Coagulation defects, purpura and other haemorrhagic conditions","code":"D65-D69","values":[192.0,225.0,208.0,243.0,232.0,238.0,186.0,246.0,274.0,263.0,264.0,230.0,236.0,218.0,191.0,229.0,143.0,184.0,170.0,167.0,168.0,162.0,213.0,163.0,196.0],"avg2020_24":180.4,"z_avg":-0.46467094025713956,"mean_2000_19":216.95,"trend_pred":184.21503759398456,"resid_stdev":22.951806687292958},{"name":"Other diseases of blood and blood-forming organs","code":"D70-D76","values":[64.0,68.0,76.0,74.0,70.0,78.0,83.0,86.0,80.0,76.0,87.0,90.0,84.0,88.0,93.0,90.0,89.0,98.0,121.0,106.0,69.0,95.0,107.0,103.0,107.0],"avg2020_24":96.2,"z_avg":-2.916858049097591,"mean_2000_19":85.05,"trend_pred":109.90902255639094,"resid_stdev":4.45565822457888},{"name":"Certain disorders involving the immune mechanism","code":"D80-D89","values":[80.0,69.0,71.0,85.0,81.0,91.0,96.0,69.0,104.0,109.0,103.0,94.0,85.0,109.0,132.0,116.0,129.0,148.0,147.0,127.0,159.0,153.0,168.0,159.0,148.0],"avg2020_24":157.4,"z_avg":1.2444863238557464,"mean_2000_19":102.25,"trend_pred":147.6917293233082,"resid_stdev":8.634703709236653}],"file":"1310077601-noSymbol.csv","avg2020_24":1077.8,"z_avg":2.848606940048326,"mean_2000_19":896.3,"trend_pred":963.4616541353371,"resid_stdev":39.668809436638504},{"name":"Chapter IV: Endocrine, nutritional and metabolic diseases","code":"E00-E89","values":[8565.0,9104.0,10052.0,10219.0,10175.0,10268.0,9584.0,9912.0,10066.0,9557.0,9585.0,9874.0,9622.0,9668.0,9731.0,9929.0,9538.0,9643.0,9789.0,9992.0,10951.0,11012.0,11596.0,11010.0,10478.0],"subgroups":[{"name":"Disorders of thyroid gland","code":"E00-E07","values":[203.0,213.0,255.0,239.0,242.0,214.0,246.0,255.0,249.0,241.0,255.0,285.0,298.0,236.0,217.0,202.0,154.0,157.0,155.0,172.0,172.0,203.0,220.0,202.0,169.0],"avg2020_24":193.2,"z_avg":0.03212755170001376,"mean_2000_19":224.4,"trend_pred":184.0240601503756,"resid_stdev":26.09722201842875},{"name":"Diabetes mellitus","code":"E10-E14","values":[6719.0,7100.0,7875.0,7982.0,7825.0,7881.0,7273.0,7431.0,7557.0,6973.0,6945.0,7257.0,7006.0,7044.0,7075.0,7183.0,6861.0,6946.0,6870.0,7010.0,7672.0,7524.0,7777.0,7300.0,6874.0],"avg2020_24":7429.4,"z_avg":2.452451176638453,"mean_2000_19":7240.65,"trend_pred":6809.62556390978,"resid_stdev":234.8668310207626},{"name":"Malnutrition","code":"E40-E46","values":[180.0,176.0,208.0,194.0,213.0,209.0,170.0,199.0,203.0,180.0,204.0,215.0,170.0,165.0,151.0,195.0,167.0,199.0,214.0,190.0,231.0,241.0,298.0,256.0,296.0],"avg2020_24":264.4,"z_avg":5.866523060072966,"mean_2000_19":190.1,"trend_pred":185.49473684210523,"resid_stdev":13.499096883616401},{"name":"Obesity and other hyperalimentation","code":"E65-E68","values":[187.0,217.0,243.0,275.0,318.0,293.0,317.0,379.0,362.0,390.0,385.0,412.0,408.0,417.0,456.0,408.0,455.0,440.0,439.0,506.0,617.0,637.0,611.0,610.0,538.0],"avg2020_24":602.6,"z_avg":2.9512823911693014,"mean_2000_19":365.35,"trend_pred":539.9458646616513,"resid_stdev":19.234565796957263},{"name":"Metabolic disorders","code":"E70-E89","values":[1124.0,1262.0,1349.0,1405.0,1458.0,1537.0,1449.0,1502.0,1562.0,1658.0,1683.0,1573.0,1601.0,1693.0,1709.0,1803.0,1770.0,1745.0,1944.0,1966.0,2119.0,2262.0,2502.0,2480.0,2429.0],"avg2020_24":2358.4,"z_avg":7.093677732083719,"mean_2000_19":1589.65,"trend_pred":2020.8624060150323,"resid_stdev":46.78639297129054}],"file":"1310014401-noSymbol.csv","avg2020_24":11009.4,"z_avg":3.811951838022579,"mean_2000_19":9743.65,"trend_pred":9882.945112781954,"resid_stdev":279.7037928399266},{"name":"Chapter V: Mental and behavioural disorders","code":"F01-F99","values":[5992.0,6248.0,6555.0,6629.0,6840.0,7750.0,9804.0,9990.0,11108.0,11419.0,12733.0,13999.0,14970.0,17006.0,18377.0,19229.0,20411.0,22907.0,24690.0,25756.0,25661.0,25778.0,28438.0,28411.0,29733.0],"subgroups":[{"name":"Organic, including symptomatic, mental disorders","code":"F01-F09","values":[4865.0,5086.0,5322.0,5460.0,5630.0,6489.0,8562.0,8795.0,10031.0,10347.0,11617.0,12843.0,13807.0,15800.0,17064.0,17894.0,19015.0,21388.0,23237.0,24187.0,23816.0,23945.0,26747.0,26772.0,28076.0],"avg2020_24":25871.2,"z_avg":0.7528961524191711,"mean_2000_19":12371.95,"trend_pred":25608.80150375981,"resid_stdev":873.707474964336},{"name":"Mental and behavioural disorders due to psychoactive substance use","code":"F10-F19","values":[763.0,804.0,876.0,846.0,899.0,899.0,889.0,836.0,801.0,756.0,801.0,854.0,891.0,960.0,996.0,1024.0,1099.0,1195.0,1134.0,1196.0,1458.0,1472.0,1369.0,1296.0,1269.0],"avg2020_24":1372.8,"z_avg":3.5457365934714726,"mean_2000_19":925.95,"trend_pred":1162.1812030075162,"resid_stdev":63.694465462638846},{"name":"Schizophrenia, schizotypal and delusional disorders","code":"F20-F29","values":[127.0,105.0,128.0,110.0,99.0,125.0,116.0,133.0,101.0,120.0,100.0,105.0,81.0,84.0,109.0,100.0,95.0,96.0,120.0,109.0,127.0,114.0,103.0,108.0,121.0],"avg2020_24":114.6,"z_avg":2.2441420024147973,"mean_2000_19":108.15,"trend_pred":95.11428571428587,"resid_stdev":9.290060193731282},{"name":"Mood [affective] disorders","code":"F30-F39","values":[137.0,150.0,148.0,134.0,121.0,140.0,124.0,128.0,109.0,112.0,123.0,129.0,112.0,114.0,111.0,113.0,117.0,129.0,118.0,151.0,149.0,125.0,115.0,119.0,124.0],"avg2020_24":126.4,"z_avg":1.6639390161477132,"mean_2000_19":126.0,"trend_pred":114.60902255639098,"resid_stdev":8.896646631846854}],"file":"1310014301-noSymbol.csv","avg2020_24":27604.2,"z_avg":1.0335340347360293,"mean_2000_19":13620.65,"trend_pred":27067.0691729323,"resid_stdev":923.1368247214641},{"name":"Chapter VI: Diseases of the nervous system","code":"G00-G98","values":[9530.0,10191.0,10321.0,10272.0,10258.0,10789.0,10809.0,11298.0,11938.0,11792.0,12124.0,12101.0,12483.0,12757.0,13206.0,13505.0,14120.0,14982.0,14798.0,14770.0,14741.0,14576.0,15433.0,15333.0,15562.0],"subgroups":[{"name":"Inflammatory diseases of the central nervous system","code":"G00-G09","values":[127.0,106.0,123.0,120.0,100.0,102.0,138.0,121.0,127.0,151.0,147.0,121.0,117.0,151.0,166.0,147.0,163.0,177.0,217.0,218.0,207.0,192.0,257.0,272.0,275.0],"avg2020_24":240.6,"z_avg":3.296547065521698,"mean_2000_19":141.95,"trend_pred":199.53458646616673,"resid_stdev":13.947294735971862},{"name":"Systemic atrophies primarily affecting the central nervous system","code":"G10-G14","values":[810.0,839.0,779.0,818.0,843.0,885.0,1010.0,930.0,956.0,1016.0,981.0,1028.0,1216.0,1129.0,1107.0,1100.0,1157.0,1241.0,1237.0,1299.0,1245.0,1359.0,1402.0,1452.0,1462.0],"avg2020_24":1384.0,"z_avg":1.2418322655506404,"mean_2000_19":1019.05,"trend_pred":1344.8300751879724,"resid_stdev":34.54164141322919},{"name":"Extrapyramidal and movement disorders","code":"G20-G26","values":[1533.0,1654.0,1724.0,1726.0,1709.0,1955.0,1754.0,1938.0,1931.0,1951.0,2088.0,2086.0,2228.0,2532.0,2708.0,2797.0,3238.0,3637.0,3622.0,3695.0,4055.0,4072.0,4326.0,4458.0,4588.0],"avg2020_24":4299.8,"z_avg":3.3632592289398193,"mean_2000_19":2325.3,"trend_pred":3726.8789473683864,"resid_stdev":192.34944694867144},{"name":"Other degenerative diseases of the nervous system","code":"G30-G31","values":[5217.0,5691.0,5757.0,5718.0,5768.0,5965.0,6057.0,6321.0,6970.0,6750.0,6981.0,6924.0,6881.0,6948.0,7117.0,7322.0,7388.0,7602.0,7371.0,7149.0,6746.0,6551.0,6658.0,6356.0,6365.0],"avg2020_24":6535.2,"z_avg":-9.21768823451507,"mean_2000_19":6594.85,"trend_pred":8016.325563909777,"resid_stdev":165.32486510051083},{"name":"Demyelinating diseases of the central nervous system","code":"G35-G37","values":[426.0,435.0,461.0,436.0,454.0,454.0,462.0,498.0,485.0,464.0,472.0,509.0,555.0,538.0,530.0,562.0,562.0,648.0,616.0,615.0,636.0,633.0,739.0,736.0,698.0],"avg2020_24":688.4,"z_avg":3.100386551297069,"mean_2000_19":509.1,"trend_pred":639.5511278195481,"resid_stdev":17.170882178603776},{"name":"Episodic and paroxysmal disorders","code":"G40-G47","values":[344.0,370.0,374.0,380.0,353.0,376.0,343.0,386.0,388.0,397.0,369.0,395.0,401.0,371.0,406.0,396.0,392.0,372.0,340.0,371.0,430.0,372.0,430.0,450.0,485.0],"avg2020_24":433.4,"z_avg":3.1761359394701003,"mean_2000_19":376.2,"trend_pred":386.8766917293235,"resid_stdev":13.585157906646577},{"name":"Polyneuropathies and other disorders of the peripheral nervous system","code":"G60-G64","values":[52.0,65.0,57.0,65.0,73.0,59.0,67.0,56.0,71.0,66.0,69.0,65.0,74.0,64.0,77.0,64.0,83.0,95.0,93.0,97.0,96.0,102.0,126.0,136.0,137.0],"avg2020_24":119.4,"z_avg":5.109969476143947,"mean_2000_19":70.6,"trend_pred":91.76541353383436,"resid_stdev":5.677056702901588},{"name":"Diseases of myoneural junction and muscle","code":"G70-G72","values":[250.0,242.0,246.0,241.0,253.0,261.0,295.0,336.0,307.0,335.0,336.0,320.0,347.0,327.0,357.0,361.0,392.0,462.0,438.0,450.0,442.0,444.0,568.0,514.0,523.0],"avg2020_24":498.2,"z_avg":2.2505160548438847,"mean_2000_19":327.8,"trend_pred":466.0142857142855,"resid_stdev":16.151057535217547},{"name":"Cerebral palsy and other paralytic syndromes","code":"G80-G83","values":[218.0,242.0,250.0,235.0,207.0,216.0,224.0,194.0,222.0,225.0,238.0,231.0,232.0,212.0,234.0,228.0,272.0,270.0,304.0,330.0,326.0,298.0,291.0,350.0,375.0],"avg2020_24":328.0,"z_avg":2.9025233788474845,"mean_2000_19":239.2,"trend_pred":281.5120300751878,"resid_stdev":18.570210430557964},{"name":"Other disorders of the nervous system","code":"G90-G98","values":[546.0,542.0,537.0,526.0,490.0,514.0,455.0,513.0,476.0,435.0,439.0,419.0,429.0,478.0,500.0,521.0,467.0,472.0,554.0,541.0,555.0,546.0,620.0,598.0,645.0],"avg2020_24":592.8,"z_avg":4.23305775167644,"mean_2000_19":492.7,"trend_pred":475.3691729323309,"resid_stdev":30.08305922999432}],"file":"1310014501-noSymbol.csv","avg2020_24":15129.0,"z_avg":-1.990384944804347,"mean_2000_19":12102.2,"trend_pred":15632.93308270676,"resid_stdev":221.02286487603857},{"name":"Chapter VII: Diseases of the eye and adnexa","code":"H00-H59","values":[8.0,9.0,1.0,4.0,4.0,4.0,0.0,6.0,6.0,4.0,6.0,3.0,4.0,4.0,6.0,9.0,9.0,14.0,12.0,16.0,18.0,18.0,31.0,38.0,49.0],"subgroups":[],"file":"1310014601-noSymbol.csv","avg2020_24":30.8,"z_avg":8.490358917298378,"mean_2000_19":6.45,"trend_pred":11.590977443609063,"resid_stdev":2.3699260246107063},{"name":"Chapter VIII: Diseases of the ear and mastoid process","code":"H60-H95","values":[7.0,10.0,8.0,8.0,8.0,6.0,10.0,7.0,9.0,8.0,11.0,13.0,11.0,12.0,13.0,17.0,23.0,18.0,16.0,13.0,13.0,15.0,27.0,27.0,34.0],"subgroups":[],"file":"1310078001-noSymbol.csv","avg2020_24":23.2,"z_avg":2.4344651169726674,"mean_2000_19":11.4,"trend_pred":18.65563909774437,"resid_stdev":1.9334271292039644},{"name":"Chapter IX: Diseases of the circulatory system","code":"I00-I99","values":[76502.0,74911.0,74703.0,74377.0,72769.0,71777.0,69132.0,69860.0,69937.0,68768.0,67731.0,66559.0,66984.0,68461.0,69628.0,70503.0,70454.0,72597.0,72934.0,72593.0,74244.0,75074.0,79399.0,77635.0,77194.0],"subgroups":[{"name":"Chronic rheumatic heart diseases","code":"I05-I09","values":[423.0,380.0,459.0,499.0,428.0,458.0,444.0,456.0,478.0,411.0,422.0,440.0,465.0,562.0,637.0,609.0,667.0,615.0,671.0,622.0,533.0,616.0,600.0,623.0,635.0],"avg2020_24":601.4,"z_avg":-1.6911060781275646,"mean_2000_19":507.3,"trend_pred":672.9203007518772,"resid_stdev":38.58882751112507},{"name":"Hypertensive diseases","code":"I10-I15","values":[1697.0,1675.0,1935.0,1977.0,2123.0,2213.0,2080.0,2155.0,2322.0,2453.0,2508.0,2563.0,2618.0,3213.0,3349.0,3380.0,3543.0,3599.0,3680.0,3933.0,4760.0,4895.0,5287.0,5035.0,4814.0],"avg2020_24":4958.2,"z_avg":7.271181362723268,"mean_2000_19":2650.8,"trend_pred":4126.0067669173,"resid_stdev":118.159029492413},{"name":"Ischaemic heart diseases","code":"I20-I25","values":[42459.0,41428.0,40659.0,40682.0,39327.0,38502.0,37006.0,36864.0,36875.0,35879.0,34953.0,33787.0,33892.0,33902.0,34033.0,34105.0,33158.0,33697.0,33442.0,32537.0,33844.0,34232.0,36157.0,34559.0,34681.0],"avg2020_24":34694.6,"z_avg":7.212866333870916,"mean_2000_19":36359.35,"trend_pred":30053.306766917463,"resid_stdev":678.063408733369},{"name":"Pulmonary heart disease and diseases of pulmonary circulation","code":"I26-I28","values":[928.0,889.0,953.0,1010.0,912.0,988.0,808.0,826.0,910.0,963.0,1025.0,1066.0,1074.0,1023.0,1087.0,1118.0,1180.0,1154.0,1231.0,1205.0,1331.0,1427.0,1453.0,1457.0,1398.0],"avg2020_24":1413.2,"z_avg":3.984314247861556,"mean_2000_19":1017.5,"trend_pred":1231.1654135338322,"resid_stdev":48.65569691703258},{"name":"Other forms of heart disease","code":"I30-I51","values":[10649.0,10445.0,10601.0,10158.0,10585.0,10894.0,10906.0,11549.0,11560.0,11154.0,11522.0,11697.0,12264.0,12733.0,13441.0,13931.0,14805.0,15897.0,16681.0,16777.0,16155.0,16626.0,17907.0,18362.0,18294.0],"avg2020_24":17468.8,"z_avg":1.9539155237104195,"mean_2000_19":12412.45,"trend_pred":16539.959398496198,"resid_stdev":608.3889436767514},{"name":"Cerebrovascular diseases","code":"I60-I69","values":[15592.0,15459.0,15460.0,15299.0,14631.0,14056.0,13840.0,14027.0,13995.0,14180.0,13709.0,13338.0,13180.0,13405.0,13577.0,13815.0,13588.0,13945.0,13559.0,13733.0,13800.0,13539.0,14182.0,13857.0,13680.0],"avg2020_24":13811.6,"z_avg":3.33508786977657,"mean_2000_19":14119.4,"trend_pred":12844.982706766896,"resid_stdev":326.04981808348697},{"name":"Diseases of arteries, arterioles and capillaries","code":"I70-I78","values":[4368.0,4246.0,4216.0,4318.0,4357.0,4254.0,3742.0,3650.0,3498.0,3367.0,3271.0,3324.0,3138.0,3251.0,3179.0,3212.0,3136.0,3337.0,3310.0,3374.0,3386.0,3289.0,3368.0,3307.0,3250.0],"avg2020_24":3320.0,"z_avg":3.5793217838701064,"mean_2000_19":3627.4,"trend_pred":2760.5390977443603,"resid_stdev":169.04344979048187},{"name":"Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified","code":"I80-I89","values":[347.0,359.0,386.0,389.0,373.0,383.0,276.0,298.0,265.0,320.0,292.0,308.0,324.0,336.0,300.0,301.0,331.0,320.0,316.0,350.0,381.0,386.0,381.0,356.0,339.0],"avg2020_24":368.6,"z_avg":3.1812998939011865,"mean_2000_19":328.7,"trend_pred":297.6285714285714,"resid_stdev":23.766677488147895}],"file":"1310014701-noSymbol_1_.csv","avg2020_24":76709.2,"z_avg":4.86946789759422,"mean_2000_19":71059.0,"trend_pred":68568.54887218046,"resid_stdev":1821.0872962527767},{"name":"Chapter X: Diseases of the respiratory system","code":"J00-J98","values":[17773.0,17616.0,17772.0,18506.0,19610.0,20498.0,19181.0,20952.0,21187.0,21687.0,20756.0,22184.0,22146.0,23206.0,23364.0,25226.0,23781.0,25895.0,27493.0,25620.0,23626.0,21115.0,25574.0,26455.0,28049.0],"subgroups":[{"name":"Influenza and pneumonia","code":"J09-J18","values":[4969.0,4781.0,4732.0,4969.0,5731.0,5852.0,5233.0,5853.0,5813.0,6207.0,5112.0,5788.0,5692.0,6550.0,6599.0,7637.0,6259.0,7450.0,8600.0,6955.0,6045.0,4139.0,6172.0,6383.0,7658.0],"avg2020_24":6079.4,"z_avg":-4.465921350222596,"mean_2000_19":6039.1,"trend_pred":7873.0285714285565,"resid_stdev":394.2111679465269},{"name":"Chronic lower respiratory diseases","code":"J40-J47","values":[9828.0,9778.0,9881.0,10174.0,10042.0,10519.0,9807.0,10695.0,10949.0,10863.0,10757.0,11248.0,11137.0,11978.0,11882.0,12581.0,12317.0,12912.0,13087.0,12920.0,11895.0,11031.0,12676.0,13026.0,13202.0],"avg2020_24":12366.0,"z_avg":-4.781415990124788,"mean_2000_19":11167.75,"trend_pred":13486.537593984976,"resid_stdev":223.08769958272083},{"name":"Lung diseases due to external agents","code":"J60-J70","values":[786.0,888.0,968.0,1131.0,1292.0,1453.0,1565.0,1719.0,1749.0,1827.0,2069.0,2131.0,2149.0,1350.0,1402.0,1397.0,1554.0,1669.0,1765.0,1730.0,1853.0,2107.0,2316.0,2431.0,2476.0],"avg2020_24":2236.6,"z_avg":0.709519094345291,"mean_2000_19":1529.7,"trend_pred":2014.5496240601497,"resid_stdev":231.7067676544248},{"name":"Other respiratory diseases principally affecting the interstitium","code":"J80-J84","values":[1291.0,1350.0,1364.0,1373.0,1689.0,1780.0,1731.0,1800.0,1815.0,1920.0,1985.0,2055.0,2251.0,2298.0,2468.0,2565.0,2671.0,2753.0,2887.0,2993.0,2884.0,3024.0,3401.0,3540.0,3464.0],"avg2020_24":3262.6,"z_avg":1.817720111862114,"mean_2000_19":2051.95,"trend_pred":3170.4932330826996,"resid_stdev":58.139735720387996},{"name":"Suppurative and necrotic conditions of lower respiratory tract","code":"J85-J86","values":[81.0,81.0,74.0,66.0,86.0,76.0,70.0,74.0,93.0,93.0,84.0,105.0,101.0,95.0,96.0,113.0,90.0,101.0,143.0,133.0,133.0,115.0,192.0,193.0,206.0],"avg2020_24":167.8,"z_avg":5.143182388701077,"mean_2000_19":92.75,"trend_pred":126.3308270676689,"resid_stdev":8.497982305342617},{"name":"Other diseases of pleura","code":"J90-J94","values":[109.0,127.0,136.0,142.0,144.0,155.0,146.0,155.0,143.0,154.0,142.0,163.0,146.0,157.0,148.0,141.0,158.0,146.0,154.0,169.0,171.0,177.0,159.0,176.0,222.0],"avg2020_24":181.0,"z_avg":2.062308858274884,"mean_2000_19":146.75,"trend_pred":164.99248120300763,"resid_stdev":7.05884510876305},{"name":"Other diseases of the respiratory system","code":"J95-J98","values":[527.0,477.0,470.0,498.0,473.0,498.0,482.0,490.0,476.0,468.0,470.0,535.0,493.0,564.0,547.0,566.0,536.0,638.0,591.0,531.0,482.0,415.0,526.0,540.0,632.0],"avg2020_24":519.0,"z_avg":-2.512820792688945,"mean_2000_19":516.5,"trend_pred":584.7330827067672,"resid_stdev":24.38816285071767}],"file":"1310078201-noSymbol_1_.csv","avg2020_24":24963.8,"z_avg":-4.947260662511357,"mean_2000_19":21722.65,"trend_pred":27654.952631579014,"resid_stdev":533.6923424282733},{"name":"Chapter XI: Diseases of the digestive system","code":"K00-K92","values":[8152.0,8204.0,8462.0,8714.0,8665.0,8953.0,8963.0,9864.0,9803.0,9685.0,9480.0,9705.0,9862.0,10351.0,10776.0,10948.0,11464.0,11662.0,12139.0,12606.0,13482.0,14557.0,15252.0,15108.0,15174.0],"subgroups":[{"name":"Diseases of oesophagus, stomach and duodenum","code":"K20-K31","values":[795.0,808.0,801.0,740.0,784.0,742.0,711.0,756.0,795.0,795.0,798.0,801.0,820.0,891.0,880.0,837.0,839.0,919.0,957.0,948.0,1023.0,1149.0,1180.0,1155.0,1224.0],"avg2020_24":1146.2,"z_avg":7.431310818308506,"mean_2000_19":820.85,"trend_pred":932.9082706766931,"resid_stdev":30.163484586199633},{"name":"Hernia","code":"K40-K46","values":[205.0,204.0,221.0,241.0,268.0,273.0,227.0,266.0,294.0,314.0,317.0,345.0,339.0,359.0,364.0,376.0,383.0,385.0,423.0,446.0,433.0,469.0,514.0,532.0,533.0],"avg2020_24":496.2,"z_avg":3.2048628441926397,"mean_2000_19":312.5,"trend_pred":463.439849624061,"resid_stdev":10.498936151639525},{"name":"Noninfective enteritis and colitis","code":"K50-K52","values":[299.0,298.0,373.0,394.0,334.0,391.0,410.0,572.0,450.0,262.0,162.0,151.0,149.0,168.0,196.0,157.0,202.0,191.0,185.0,221.0,218.0,233.0,256.0,287.0,301.0],"avg2020_24":259.0,"z_avg":2.053219464059177,"mean_2000_19":278.25,"trend_pred":117.18796992481293,"resid_stdev":67.16867460555757},{"name":"Other diseases of intestines","code":"K55-K64","values":[2163.0,2169.0,2237.0,2336.0,2385.0,2526.0,2524.0,2678.0,2682.0,2727.0,2740.0,2696.0,2736.0,2804.0,2984.0,2961.0,3016.0,2990.0,3151.0,3304.0,3296.0,3487.0,3883.0,3934.0,3869.0],"avg2020_24":3693.8,"z_avg":7.029471309297647,"mean_2000_19":2690.45,"trend_pred":3360.2902255639056,"resid_stdev":47.133313425414705},{"name":"Diseases of peritoneum","code":"K65-K66","values":[197.0,168.0,168.0,171.0,171.0,164.0,167.0,167.0,181.0,191.0,193.0,160.0,159.0,164.0,158.0,142.0,152.0,143.0,169.0,156.0,175.0,188.0,178.0,192.0,187.0],"avg2020_24":184.0,"z_avg":4.011000072699609,"mean_2000_19":167.05,"trend_pred":149.39022556390955,"resid_stdev":8.71285809091724},{"name":"Diseases of liver","code":"K70-K76","values":[2675.0,2744.0,2819.0,2880.0,2834.0,2886.0,2978.0,3228.0,3277.0,3155.0,3185.0,3402.0,3434.0,3621.0,3856.0,3985.0,4285.0,4365.0,4532.0,4701.0,5319.0,5874.0,5911.0,5546.0,5677.0],"avg2020_24":5665.4,"z_avg":7.671471901180125,"mean_2000_19":3442.1,"trend_pred":4736.009774436097,"resid_stdev":127.70401015393324},{"name":"Disorders of gallbladder, biliary tract and pancreas","code":"K80-K86","values":[793.0,796.0,811.0,822.0,831.0,892.0,849.0,965.0,970.0,1048.0,956.0,968.0,1033.0,1104.0,1134.0,1176.0,1203.0,1210.0,1269.0,1344.0,1431.0,1638.0,1562.0,1715.0,1618.0],"avg2020_24":1592.8,"z_avg":8.387436138895666,"mean_2000_19":1008.7,"trend_pred":1360.6548872180429,"resid_stdev":28.62556671740763},{"name":"Other diseases of the digestive system","code":"K90-K92","values":[974.0,963.0,970.0,1070.0,989.0,1026.0,1015.0,1151.0,1088.0,1104.0,1056.0,1113.0,1109.0,1151.0,1107.0,1219.0,1294.0,1358.0,1364.0,1392.0,1496.0,1399.0,1629.0,1594.0,1625.0],"avg2020_24":1548.6,"z_avg":4.363527419640366,"mean_2000_19":1125.65,"trend_pred":1384.2872180451159,"resid_stdev":40.38310408266223}],"file":"1310014801-noSymbol.csv","avg2020_24":14714.6,"z_avg":9.003705725352374,"mean_2000_19":9922.9,"trend_pred":12610.851127819566,"resid_stdev":242.0238331473428},{"name":"Chapter XII: Diseases of the skin and subcutaneous tissue","code":"L00-L98","values":[307.0,327.0,314.0,327.0,330.0,317.0,301.0,347.0,361.0,328.0,410.0,427.0,414.0,517.0,567.0,611.0,645.0,690.0,769.0,682.0,752.0,832.0,938.0,1009.0,1017.0],"subgroups":[{"name":"Infections of the skin and subcutaneous tissue","code":"L00-L08","values":[110.0,114.0,122.0,123.0,147.0,121.0,149.0,161.0,179.0,147.0,202.0,213.0,212.0,294.0,325.0,342.0,356.0,388.0,442.0,370.0,431.0,477.0,535.0,578.0,580.0],"avg2020_24":520.2,"z_avg":3.323385973004173,"mean_2000_19":225.85,"trend_pred":441.4796992481206,"resid_stdev":25.830674333104376},{"name":"Other disorders of the skin and subcutaneous tissue","code":"L80-L98","values":[158.0,167.0,149.0,161.0,142.0,147.0,120.0,148.0,151.0,135.0,166.0,158.0,151.0,173.0,177.0,206.0,229.0,241.0,263.0,241.0,261.0,267.0,323.0,342.0,345.0],"avg2020_24":307.6,"z_avg":4.139447924055732,"mean_2000_19":174.15,"trend_pred":238.85864661653977,"resid_stdev":18.336709333231653}],"file":"1310014901-noSymbol.csv","avg2020_24":909.6,"z_avg":3.950331281949003,"mean_2000_19":449.55,"trend_pred":749.1834586466211,"resid_stdev":44.50994835719954},{"name":"Chapter XIII: Diseases of the musculoskeletal system and connective tissue","code":"M00-M99","values":[1395.0,1469.0,1537.0,1574.0,1433.0,1582.0,1574.0,1525.0,1516.0,1501.0,1477.0,1673.0,1533.0,1710.0,1778.0,1790.0,1881.0,1977.0,1989.0,2052.0,2125.0,2144.0,2560.0,2792.0,2748.0],"subgroups":[{"name":"Arthropathies","code":"M00-M25","values":[569.0,598.0,609.0,570.0,592.0,641.0,601.0,568.0,547.0,530.0,510.0,578.0,567.0,578.0,606.0,593.0,590.0,659.0,643.0,658.0,688.0,641.0,802.0,842.0,869.0],"avg2020_24":768.4,"z_avg":5.87651540696503,"mean_2000_19":590.35,"trend_pred":619.1939849624055,"resid_stdev":26.496316993068106},{"name":"Systemic connective tissue disorders","code":"M30-M35","values":[397.0,369.0,377.0,438.0,340.0,377.0,418.0,380.0,379.0,359.0,363.0,397.0,366.0,398.0,443.0,417.0,470.0,511.0,486.0,481.0,499.0,525.0,521.0,604.0,529.0],"avg2020_24":535.6,"z_avg":2.5812426951565515,"mean_2000_19":408.3,"trend_pred":476.9090225563905,"resid_stdev":25.618853108114678},{"name":"Dorsopathies","code":"M40-M54","values":[92.0,96.0,115.0,101.0,93.0,88.0,102.0,121.0,98.0,119.0,111.0,145.0,122.0,143.0,149.0,172.0,171.0,165.0,180.0,191.0,185.0,217.0,270.0,320.0,334.0],"avg2020_24":265.2,"z_avg":7.85578409143627,"mean_2000_19":128.7,"trend_pred":192.72255639097966,"resid_stdev":9.572875569607557},{"name":"Soft tissue disorders","code":"M60-M79","values":[64.0,87.0,69.0,103.0,75.0,93.0,91.0,104.0,124.0,121.0,149.0,167.0,132.0,138.0,144.0,143.0,164.0,174.0,220.0,204.0,234.0,218.0,281.0,326.0,331.0],"avg2020_24":278.0,"z_avg":5.790354991059182,"mean_2000_19":128.3,"trend_pred":214.03308270676462,"resid_stdev":11.435726720637767},{"name":"Osteopathies and chondropathies","code":"M80-M94","values":[272.0,317.0,367.0,362.0,332.0,383.0,361.0,352.0,368.0,372.0,344.0,384.0,345.0,452.0,434.0,465.0,485.0,468.0,459.0,518.0,519.0,543.0,685.0,700.0,685.0],"avg2020_24":626.4,"z_avg":5.334669027243749,"mean_2000_19":392.0,"trend_pred":511.79323308270614,"resid_stdev":21.87001036455558}],"file":"1310015001-noSymbol.csv","avg2020_24":2473.8,"z_avg":6.944167535209769,"mean_2000_19":1648.3,"trend_pred":2015.2548872180414,"resid_stdev":69.05544982181544},{"name":"Chapter XIV: Diseases of the genitourinary system","code":"N00-N99","values":[4141.0,4324.0,4530.0,4684.0,4880.0,5201.0,5268.0,5640.0,5376.0,5281.0,5584.0,5027.0,5078.0,4785.0,5044.0,5263.0,5090.0,5500.0,5798.0,6036.0,6577.0,6548.0,7249.0,6972.0,7219.0],"subgroups":[{"name":"Glomerular diseases","code":"N00-N07","values":[58.0,60.0,63.0,68.0,62.0,61.0,69.0,135.0,137.0,161.0,210.0,72.0,83.0,91.0,106.0,84.0,85.0,83.0,107.0,89.0,108.0,128.0,117.0,94.0,110.0],"avg2020_24":111.4,"z_avg":-0.32401438392149945,"mean_2000_19":94.2,"trend_pred":115.85413533834571,"resid_stdev":27.249207987275902},{"name":"Renal tubulo-interstitial diseases","code":"N10-N15","values":[164.0,134.0,139.0,139.0,175.0,180.0,168.0,183.0,179.0,177.0,165.0,177.0,172.0,199.0,217.0,191.0,189.0,228.0,252.0,281.0,283.0,306.0,315.0,368.0,363.0],"avg2020_24":327.0,"z_avg":5.666159204549196,"mean_2000_19":185.45,"trend_pred":249.98947368421068,"resid_stdev":14.233279264557131},{"name":"Renal failure","code":"N17-N19","values":[3071.0,3154.0,3370.0,3428.0,3476.0,3574.0,3617.0,3663.0,3709.0,3445.0,3647.0,3215.0,3229.0,2865.0,2981.0,3031.0,2944.0,3182.0,3499.0,3678.0,3949.0,3832.0,4189.0,4015.0,4029.0],"avg2020_24":4002.8,"z_avg":3.957633730750246,"mean_2000_19":3338.9,"trend_pred":3238.7120300751867,"resid_stdev":191.9708900855732},{"name":"Urolithiasis","code":"N20-N23","values":[25.0,20.0,24.0,36.0,34.0,47.0,55.0,38.0,41.0,42.0,55.0,65.0,52.0,74.0,79.0,92.0,95.0,96.0,101.0,118.0,136.0,182.0,192.0,188.0,196.0],"avg2020_24":178.8,"z_avg":9.776973975904138,"mean_2000_19":59.45,"trend_pred":117.76766917293389,"resid_stdev":6.392042259812557},{"name":"Other disorders of kidney and ureter","code":"N25-N28","values":[52.0,71.0,53.0,61.0,59.0,53.0,59.0,56.0,49.0,60.0,60.0,86.0,102.0,80.0,60.0,96.0,98.0,112.0,86.0,97.0,116.0,104.0,122.0,123.0,116.0],"avg2020_24":116.2,"z_avg":1.3745447218527358,"mean_2000_19":72.5,"trend_pred":104.77443609022521,"resid_stdev":9.276208847237779},{"name":"Other diseases of urinary system","code":"N30-N39","values":[665.0,784.0,769.0,826.0,941.0,1163.0,1162.0,1397.0,1103.0,1235.0,1270.0,1203.0,1238.0,1268.0,1400.0,1524.0,1447.0,1569.0,1479.0,1521.0,1644.0,1656.0,1920.0,1814.0,1998.0],"avg2020_24":1806.4,"z_avg":0.7071590561736748,"mean_2000_19":1198.2,"trend_pred":1733.7263157894631,"resid_stdev":76.57214277013972},{"name":"Diseases of male genital organs","code":"N40-N50","values":[73.0,62.0,78.0,85.0,101.0,78.0,107.0,124.0,116.0,119.0,122.0,155.0,154.0,151.0,154.0,188.0,176.0,181.0,207.0,187.0,259.0,250.0,312.0,291.0,315.0],"avg2020_24":285.4,"z_avg":8.656540554340056,"mean_2000_19":130.9,"trend_pred":220.91879699248057,"resid_stdev":7.460393976337397}],"file":"1310015101-noSymbol.csv","avg2020_24":6913.0,"z_avg":4.25908357984532,"mean_2000_19":5126.5,"trend_pred":5847.890977443618,"resid_stdev":245.31897601181385},{"name":"Chapter XV: Pregnancy, childbirth and the puerperium","code":"O00-O99","values":[11.0,27.0,16.0,23.0,20.0,30.0,28.0,25.0,34.0,29.0,25.0,18.0,20.0,23.0,23.0,27.0,27.0,27.0,34.0,33.0,35.0,30.0,40.0,43.0,46.0],"subgroups":[],"file":"1310015201-noSymbol.csv","avg2020_24":38.8,"z_avg":2.026473292037319,"mean_2000_19":25.0,"trend_pred":31.16541353383468,"resid_stdev":3.7365834012807277},{"name":"Chapter XVI: Certain conditions originating in the perinatal period","code":"P00-P96","values":[900.0,939.0,933.0,999.0,1028.0,1046.0,1018.0,1128.0,1116.0,1089.0,1132.0,1095.0,1089.0,1129.0,1102.0,1078.0,1035.0,1048.0,1035.0,1018.0,957.0,982.0,1017.0,941.0,940.0],"subgroups":[{"name":"Fetus and newborn affected by maternal factors and by complications of pregnancy, labour and delivery","code":"P00-P04","values":[250.0,261.0,256.0,286.0,329.0,342.0,327.0,316.0,338.0,360.0,358.0,334.0,334.0,344.0,360.0,366.0,351.0,306.0,353.0,315.0,295.0,320.0,313.0,257.0,320.0],"avg2020_24":301.0,"z_avg":-4.065750457542697,"mean_2000_19":324.3,"trend_pred":372.77744360902307,"resid_stdev":19.569559037106085},{"name":"Disorders related to length of gestation and fetal growth","code":"P05-P08","values":[170.0,203.0,260.0,231.0,260.0,234.0,246.0,289.0,279.0,269.0,264.0,296.0,273.0,273.0,259.0,252.0,224.0,235.0,185.0,224.0,187.0,180.0,201.0,184.0,162.0],"avg2020_24":182.8,"z_avg":-3.2719282926488193,"mean_2000_19":246.3,"trend_pred":251.4315789473684,"resid_stdev":23.806780583295907},{"name":"Respiratory and cardiovascular disorders specific to the perinatal period","code":"P20-P29","values":[267.0,258.0,225.0,245.0,227.0,241.0,205.0,233.0,202.0,183.0,233.0,183.0,210.0,179.0,174.0,159.0,145.0,188.0,178.0,164.0,178.0,154.0,169.0,180.0,153.0],"avg2020_24":166.8,"z_avg":2.2831061626998683,"mean_2000_19":204.95,"trend_pred":140.78646616541482,"resid_stdev":12.209696723704404},{"name":"Other disorders originating in the perinatal period","code":"P90-P96","values":[63.0,42.0,32.0,63.0,57.0,67.0,82.0,119.0,117.0,102.0,119.0,105.0,99.0,152.0,150.0,141.0,160.0,156.0,144.0,144.0,141.0,143.0,149.0,153.0,136.0],"avg2020_24":144.4,"z_avg":-3.593560293157977,"mean_2000_19":105.7,"trend_pred":184.9857142857163,"resid_stdev":11.742731676454364}],"file":"1310015301-noSymbol.csv","avg2020_24":967.4,"z_avg":-4.094566413345689,"mean_2000_19":1047.85,"trend_pred":1120.0586466165405,"resid_stdev":41.45643994521027},{"name":"Chapter XVII: Congenital malformations, deformations and chromosomal abnormalities","code":"Q00-Q99","values":[921.0,896.0,892.0,914.0,865.0,918.0,863.0,864.0,889.0,893.0,901.0,910.0,992.0,996.0,1007.0,996.0,1056.0,1012.0,1087.0,1016.0,1041.0,942.0,1077.0,1070.0,1026.0],"subgroups":[{"name":"Congenital malformations of the nervous system","code":"Q00-Q07","values":[104.0,122.0,118.0,103.0,113.0,123.0,118.0,105.0,116.0,133.0,114.0,123.0,138.0,119.0,125.0,122.0,126.0,128.0,138.0,108.0,111.0,89.0,116.0,127.0,118.0],"avg2020_24":112.2,"z_avg":-2.8528422971675718,"mean_2000_19":119.8,"trend_pred":130.02556390977452,"resid_stdev":6.454287335846005},{"name":"Congenital malformations of the circulatory system","code":"Q20-Q28","values":[397.0,313.0,294.0,322.0,274.0,293.0,291.0,270.0,289.0,275.0,271.0,273.0,270.0,284.0,243.0,268.0,301.0,257.0,274.0,260.0,282.0,234.0,304.0,262.0,262.0],"avg2020_24":268.8,"z_avg":1.8308767638736527,"mean_2000_19":285.95,"trend_pred":241.67368421052652,"resid_stdev":17.51282031764646},{"name":"Congenital malformations of the urinary system","code":"Q60-Q64","values":[41.0,55.0,69.0,63.0,61.0,67.0,59.0,76.0,70.0,72.0,79.0,72.0,96.0,77.0,82.0,87.0,88.0,87.0,95.0,86.0,88.0,101.0,114.0,105.0,99.0],"avg2020_24":101.4,"z_avg":0.06630363022882199,"mean_2000_19":74.1,"trend_pred":100.32180451127806,"resid_stdev":4.761360541385322},{"name":"Other congenital malformations","code":"Q80-Q89","values":[94.0,117.0,113.0,110.0,116.0,103.0,104.0,121.0,105.0,108.0,102.0,101.0,122.0,116.0,119.0,94.0,129.0,119.0,131.0,110.0,121.0,117.0,121.0,147.0,119.0],"avg2020_24":125.0,"z_avg":0.8121965450133681,"mean_2000_19":111.7,"trend_pred":119.70751879699242,"resid_stdev":6.962577269907541},{"name":"Chromosomal abnormalities, not elsewhere classified","code":"Q90-Q99","values":[153.0,164.0,182.0,194.0,180.0,216.0,188.0,176.0,208.0,203.0,226.0,218.0,247.0,299.0,316.0,301.0,301.0,315.0,365.0,320.0,341.0,297.0,324.0,338.0,313.0],"avg2020_24":322.6,"z_avg":-2.424454118245958,"mean_2000_19":238.6,"trend_pred":364.46466165413585,"resid_stdev":16.257128298493743}],"file":"1310015401-noSymbol.csv","avg2020_24":1031.2,"z_avg":-0.849459911178079,"mean_2000_19":944.4,"trend_pred":1062.6518796992495,"resid_stdev":28.387896099539724},{"name":"Chapter XVIII: Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified","code":"R00-R99","values":[2756.0,3089.0,3096.0,3106.0,2788.0,2659.0,2967.0,2258.0,2359.0,2375.0,2452.0,2888.0,2332.0,2342.0,2439.0,2920.0,3316.0,3029.0,4693.0,4241.0,6093.0,9253.0,11213.0,13600.0,12683.0],"subgroups":[{"name":"Symptoms and signs involving the circulatory and respiratory systems","code":"R00-R09","values":[325.0,307.0,259.0,229.0,213.0,215.0,215.0,217.0,177.0,178.0,180.0,183.0,176.0,178.0,173.0,188.0,190.0,191.0,213.0,172.0,164.0,134.0,158.0,167.0,160.0],"avg2020_24":156.6,"z_avg":1.10735364309821,"mean_2000_19":208.95,"trend_pred":141.94812030075263,"resid_stdev":20.99770009713667},{"name":"General symptoms and signs","code":"R50-R69","values":[528.0,533.0,573.0,596.0,529.0,562.0,695.0,675.0,696.0,719.0,853.0,824.0,885.0,878.0,953.0,1032.0,1012.0,1007.0,1163.0,1173.0,1119.0,1133.0,1373.0,1391.0,1442.0],"avg2020_24":1291.6,"z_avg":2.0080175905516544,"mean_2000_19":794.3,"trend_pred":1233.9992481202935,"resid_stdev":33.50356699874456},{"name":"Ill-defined and unknown causes of mortality","code":"R95-R99","values":[1862.0,2217.0,2221.0,2234.0,1998.0,1848.0,2022.0,1319.0,1445.0,1433.0,1379.0,1821.0,1219.0,1228.0,1251.0,1641.0,2051.0,1764.0,3221.0,2789.0,4728.0,7905.0,9595.0,11940.0,10966.0],"avg2020_24":9026.8,"z_avg":19.122694954619323,"mean_2000_19":1848.15,"trend_pred":1953.0654135338355,"resid_stdev":376.5870659734907}],"file":"1310015501-noSymbol.csv","avg2020_24":10568.4,"z_avg":17.675689000453016,"mean_2000_19":2905.25,"trend_pred":3415.9548872180458,"resid_stdev":413.0649511085438},{"name":"Chapter XX: External causes of morbidity and mortality","code":"V01-Y89","values":[13345.0,13424.0,14044.0,14211.0,14026.0,14897.0,14797.0,15175.0,15454.0,15659.0,16356.0,16416.0,16825.0,16981.0,17536.0,17983.0,18989.0,20619.0,21599.0,21590.0,23982.0,25547.0,26508.0,25601.0,25498.0],"subgroups":[{"name":"Transport accidents","code":"V01-V99","values":[3129.0,3049.0,3179.0,3116.0,3047.0,3271.0,3191.0,3156.0,2867.0,2626.0,2726.0,2469.0,2553.0,2397.0,2216.0,2312.0,2342.0,2217.0,2277.0,2114.0,2009.0,1991.0,2171.0,1926.0,1990.0],"avg2020_24":2017.4,"z_avg":0.7858318628110416,"mean_2000_19":2712.7,"trend_pred":1921.8353383458598,"resid_stdev":104.84388016466339},{"name":"Other external causes of accidental injury","code":"W00-X59","values":[5397.0,5425.0,5844.0,5860.0,5837.0,6151.0,6449.0,6745.0,7130.0,7418.0,7978.0,8357.0,8595.0,8921.0,9383.0,9597.0,11017.0,12681.0,13559.0,13579.0,16258.0,18193.0,18626.0,18394.0,18062.0],"avg2020_24":17906.6,"z_avg":7.695879038388456,"mean_2000_19":8296.15,"trend_pred":13602.306015037699,"resid_stdev":593.1803192580218},{"name":"Intentional self-harm","code":"X60-X84","values":[3642.0,3738.0,3723.0,3786.0,3629.0,3760.0,3567.0,3651.0,3713.0,3926.0,3972.0,3936.0,3995.0,4052.0,4288.0,4483.0,4446.0,4472.0,4593.0,4619.0,4282.0,3923.0,4214.0,3829.0,3850.0],"avg2020_24":4019.6,"z_avg":-6.124763741790735,"mean_2000_19":3999.55,"trend_pred":4684.596992481209,"resid_stdev":103.13001759909893},{"name":"Assault","code":"X85-Y09","values":[480.0,496.0,489.0,465.0,557.0,616.0,550.0,562.0,579.0,575.0,528.0,559.0,500.0,454.0,456.0,506.0,469.0,560.0,517.0,539.0,577.0,488.0,489.0,348.0,440.0],"avg2020_24":468.4,"z_avg":-1.6175310983724764,"mean_2000_19":522.85,"trend_pred":518.1977443609023,"resid_stdev":33.181893327990196},{"name":"Event of undetermined intent","code":"Y10-Y34","values":[394.0,423.0,441.0,649.0,638.0,698.0,626.0,667.0,685.0,685.0,739.0,699.0,786.0,795.0,827.0,694.0,300.0,320.0,259.0,327.0,397.0,409.0,387.0,379.0,380.0],"avg2020_24":390.4,"z_avg":-1.3951039720433471,"mean_2000_19":582.6,"trend_pred":519.0473684210538,"resid_stdev":130.30202197389},{"name":"Complications of medical and surgical care","code":"Y40-Y84","values":[168.0,158.0,221.0,186.0,170.0,198.0,206.0,193.0,194.0,191.0,155.0,166.0,155.0,124.0,131.0,134.0,148.0,114.0,152.0,154.0,146.0,205.0,271.0,285.0,354.0],"avg2020_24":252.2,"z_avg":8.191181531238913,"mean_2000_19":165.9,"trend_pred":125.01654135338322,"resid_stdev":15.380376831614587},{"name":"Sequelae of external causes of morbidity and mortality","code":"Y85-Y89","values":[124.0,128.0,140.0,144.0,137.0,187.0,197.0,185.0,269.0,215.0,238.0,207.0,225.0,221.0,215.0,242.0,247.0,238.0,222.0,244.0,288.0,326.0,334.0,431.0,410.0],"avg2020_24":357.8,"z_avg":4.164519490877869,"mean_2000_19":201.25,"trend_pred":279.2481203007519,"resid_stdev":17.793620575330266}],"file":"1310015601-noSymbol.csv","avg2020_24":25427.2,"z_avg":7.467592399543589,"mean_2000_19":16496.3,"trend_pred":21672.69097744359,"resid_stdev":531.9146131756177},{"name":"Chapter XXII: Codes for special purposes","code":"U00-U99","values":[0.0,0.0,0.0,30.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15799.0,14627.0,19954.0,7981.0,5058.0],"subgroups":[{"name":"Provisional assignment of new diseases of uncertain etiology","code":"U00-U49","values":[0.0,0.0,0.0,30.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15799.0,14627.0,19954.0,7981.0,5058.0],"avg2020_24":12683.8,"z_avg":2736.2350514665222,"mean_2000_19":1.5,"trend_pred":-2.165413533834567,"resid_stdev":4.636284959047878}],"file":"1310039101-noSymbol.csv","avg2020_24":12683.8,"z_avg":2736.2350514665222,"mean_2000_19":1.5,"trend_pred":-2.165413533834567,"resid_stdev":4.636284959047878}]};
+const years = DATA.years; // 2000..2024
+const earlyYears = new Set(years.filter(y => parseInt(y) < 2020));
+const pandemicYears = new Set(['2020','2021','2022']);
+
+function fmt(v){
+  if(v === null || v === undefined) return '—';
+  return Math.round(v).toLocaleString('en-CA');
+}
+function zClass(z){
+  if(z === null || z === undefined) return '';
+  const az = Math.abs(z);
+  if(az >= 3) return 'z-red';
+  if(az >= 2) return 'z-yellow';
+  return '';
+}
+
+const periodRow = document.getElementById('periodRow');
+const baseSpacerP = document.createElement('th');
+baseSpacerP.classList.add('base-col');
+periodRow.appendChild(baseSpacerP);
+years.forEach(y => {
+  const th = document.createElement('th');
+  if(earlyYears.has(y)) th.classList.add('early-year');
+  if(pandemicYears.has(y)){
+    th.classList.add('pandemic-year');
+    if(y === '2021') th.textContent = 'PANDEMIC';
+  }
+  periodRow.appendChild(th);
+});
+const avgHeadSpacer = document.createElement('th');
+avgHeadSpacer.classList.add('avg-col');
+periodRow.appendChild(avgHeadSpacer);
+
+const headRow = document.getElementById('headRow');
+const baseTh = document.createElement('th');
+baseTh.className = 'base-col';
+baseTh.textContent = '2000–19 mean';
+headRow.appendChild(baseTh);
+years.forEach(y => {
+  const th = document.createElement('th');
+  th.textContent = y;
+  if(earlyYears.has(y)) th.classList.add('early-year');
+  if(pandemicYears.has(y)) th.classList.add('pandemic-year');
+  headRow.appendChild(th);
+});
+const avgTh = document.createElement('th');
+avgTh.className = 'avg-col';
+avgTh.textContent = "2020–24 avg";
+headRow.appendChild(avgTh);
+
+const tbody = document.getElementById('tbody');
+let rowCounter = 0;
+
+function buildRowCells(node){
+  let cells = '';
+  cells += `<td class="base-col">${fmt(node.mean_2000_19)}</td>`;
+  node.values.forEach((v, i) => {
+    const yr = years[i];
+    let cls = [];
+    if(earlyYears.has(yr)) cls.push('early-year');
+    if(pandemicYears.has(yr)) cls.push('pandemic-year');
+    cells += `<td class="${cls.join(' ')}">${fmt(v)}</td>`;
+  });
+  let avgCls = ['avg-col'];
+  let tip = '';
+  const z = node.z_avg;
+  const zc = zClass(z);
+  if(zc){
+    avgCls.push(zc, 'z-flag');
+    const expected = node.trend_pred !== null && node.trend_pred !== undefined ? fmt(node.trend_pred) : '—';
+    tip = `<span class="ztip">z = ${z.toFixed(2)} · trend-expected ≈ ${expected}</span>`;
+  }
+  cells += `<td class="${avgCls.join(' ')}">${fmt(node.avg2020_24)}${tip}</td>`;
+  return cells;
+}
+
+function labelInner(node, depth, hasKids){
+  const chevron = hasKids ? '<span class="chevron"></span>' : (depth>0 ? '<span class="chevron spacer"></span>' : '');
+  return `<div class="label-inner">${chevron}<span>${node.name}</span><span class="code">[${node.code}]</span></div>`;
+}
+
+function renderNode(node, depth, parentId){
+  const kids = node.subgroups || node.children || [];
+  const hasKids = kids.length > 0;
+  const id = `n${rowCounter++}`;
+  const tr = document.createElement('tr');
+  tr.className = 'node-row' + (hasKids ? ' has-kids' : '') + (node.code === 'A00-Y89' ? ' total-row' : '');
+  tr.dataset.depth = depth;
+  tr.dataset.id = id;
+  if(parentId) tr.dataset.parent = parentId;
+  tr.innerHTML = `<th class="rowlabel">${labelInner(node, depth, hasKids)}</th>${buildRowCells(node)}`;
+  tbody.appendChild(tr);
+
+  if(hasKids){
+    tr.addEventListener('click', () => {
+      const open = tr.classList.toggle('expanded');
+      document.querySelectorAll(`tr.node-row[data-parent="${id}"]`).forEach(r => {
+        r.classList.toggle('open', open);
+        if(!open){
+          r.classList.remove('expanded');
+          document.querySelectorAll(`tr.node-row[data-parent="${r.dataset.id}"]`).forEach(rr => rr.classList.remove('open'));
+        }
+      });
+    });
+  }
+
+  kids.forEach(child => renderNode(child, depth+1, id));
+}
+
+DATA.chapters.forEach(chap => renderNode(chap, 0, null));
+
+document.getElementById('expandAll').addEventListener('click', () => {
+  document.querySelectorAll('tr.node-row.has-kids').forEach(r => r.classList.add('expanded'));
+  document.querySelectorAll('tr.node-row[data-depth="1"], tr.node-row[data-depth="2"]').forEach(r => r.classList.add('open'));
+});
+document.getElementById('collapseAll').addEventListener('click', () => {
+  document.querySelectorAll('tr.node-row').forEach(r => { r.classList.remove('expanded'); r.classList.remove('open'); });
+});
+
+const toggleBtn = document.getElementById('toggleEarly');
+const mainTable = document.getElementById('mainTable');
+let earlyCollapsed = false;
+toggleBtn.addEventListener('click', () => {
+  earlyCollapsed = !earlyCollapsed;
+  mainTable.classList.toggle('early-collapsed', earlyCollapsed);
+  toggleBtn.textContent = earlyCollapsed ? 'Expand 2000–19' : 'Collapse 2000–19';
+  toggleBtn.classList.toggle('active', earlyCollapsed);
+});
+</script>
+</body>
+</html>
