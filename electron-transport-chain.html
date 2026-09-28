@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The mitochondrial waterfall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF4F5;--card:#FFFFFF;--ink:#0F2E38;--muted:#4C6770;--line:#C5D6DA;--water:#2A7FBF;--proton:#E39A0E;--cx:#E9E6FA;--cx-line:#5B4BB7;--cx-ink:#2B2270;--gr:#E3ECEE;--gr-ink:#274650;--tank:#FBE7B8;--turb:#14806A;--turb-bg:#D3F0E7}
+@media (prefers-color-scheme:dark){:root{--bg:#0C1C22;--card:#12272F;--ink:#E6F1F3;--muted:#98B3BB;--line:#2C4650;--water:#5AA9E6;--proton:#F2B035;--cx:#2B2670;--cx-line:#A9A1EE;--cx-ink:#E4E1FA;--gr:#21414A;--gr-ink:#D3E5E9;--tank:#5A4413;--turb:#5ED0B2;--turb-bg:#124A3E}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.65 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:800px;margin:0 auto;padding:40px 20px 72px}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
+h2{font-size:26px;line-height:1.2;margin:56px 0 12px;font-weight:600}
+h3{font-size:18px;margin:0 0 4px;font-weight:600}
+p{margin:0 0 14px;max-width:66ch}
+.lead{color:var(--muted);font-size:19px}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 16px;margin-top:24px}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:inherit;fill:var(--ink)}
+.t{font-size:14px;font-weight:600}.s{font-size:12px;fill:var(--muted)}
+.gr rect{fill:var(--gr);stroke:var(--line)}.gr text{fill:var(--gr-ink)}
+.cx rect{fill:var(--cx);stroke:var(--cx-line)}.cx text{fill:var(--cx-ink)}
+[data-k]{cursor:pointer;outline:none}
+[data-k]:hover rect,[data-k]:focus-visible rect,[data-k]:focus-visible circle{stroke-width:2.5}
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 8px 0}
+.controls label{font-weight:600}
+input[type=range]{flex:1;min-width:160px;accent-color:var(--water);height:28px}
+button{font:inherit;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--muted);border-radius:8px;padding:6px 14px;cursor:pointer}
+button:hover{background:var(--gr)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--water);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 8px 0}
+.stat{background:var(--bg);border-radius:10px;padding:10px 14px}
+.stat b{display:block;font-size:24px;font-weight:600;line-height:1.2}
+.stat span{font-size:14px;color:var(--muted)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin:14px 8px 0}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+#cap{margin:14px 8px 0;min-height:52px;font-size:16px}
+#status{margin:6px 8px 0;font-size:15px;color:var(--muted);min-height:26px}
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:20px 0}
+.why div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.why p{margin:0;font-size:16px}
+.eq{font-size:20px;font-weight:600;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:18px 0;max-width:none}
+</style>
+</head>
+<body>
+<main>
+<h1>The mitochondrial waterfall</h1>
+<p class="lead">Electrons from the Krebs cycle fall down a staircase of protein complexes. The energy they release pumps protons uphill, and the protons power a turbine that makes ATP. Drag the slider to change how much fuel arrives.</p>
+
+<div class="stage">
+<svg viewBox="0 0 680 424" role="img" aria-labelledby="dt dd">
+<title id="dt">Electron transport chain as a waterfall</title>
+<desc id="dd">Electrons fall down complexes I, III and IV to oxygen. Each step pumps protons into a tank, which drains through ATP synthase, a turbine that makes ATP.</desc>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="gr" data-k="src" tabindex="0" role="button" aria-label="Fuel source"><rect x="20" y="50" width="110" height="28" rx="5"/><text class="t" x="75" y="64" text-anchor="middle" dominant-baseline="central">NADH, FADH₂</text></g>
+<g class="cx" data-k="I" tabindex="0" role="button" aria-label="Complex I"><rect x="90" y="120" width="110" height="28" rx="5"/><text class="t" x="145" y="134" text-anchor="middle" dominant-baseline="central">Complex I</text></g>
+<g class="cx" data-k="III" tabindex="0" role="button" aria-label="Complex III"><rect x="160" y="190" width="110" height="28" rx="5"/><text class="t" x="215" y="204" text-anchor="middle" dominant-baseline="central">Complex III</text></g>
+<g class="cx" data-k="IV" tabindex="0" role="button" aria-label="Complex IV"><rect x="230" y="260" width="110" height="28" rx="5"/><text class="t" x="285" y="274" text-anchor="middle" dominant-baseline="central">Complex IV</text></g>
+<g class="gr" data-k="end" tabindex="0" role="button" aria-label="Oxygen"><rect x="300" y="330" width="110" height="28" rx="5"/><text class="t" x="355" y="344" text-anchor="middle" dominant-baseline="central">O₂ → water</text></g>
+<text class="s" x="132" y="100">electrons fall</text>
+<text class="s" x="322" y="124" text-anchor="middle">pumps H⁺ uphill</text>
+<g stroke="var(--proton)" stroke-width="2"><line x1="205" y1="134" x2="446" y2="134" marker-end="url(#ar)"/><line x1="275" y1="204" x2="446" y2="204" marker-end="url(#ar)"/><line x1="345" y1="274" x2="446" y2="274" marker-end="url(#ar)"/></g>
+<text class="t" x="535" y="38" text-anchor="middle">Intermembrane space</text>
+<g data-k="tank" tabindex="0" role="button" aria-label="Proton reservoir">
+<rect id="water" x="452" y="150" width="166" height="148" fill="var(--tank)" stroke="var(--proton)" stroke-width="1"/>
+<rect x="450" y="50" width="170" height="250" rx="6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+</g>
+<line x1="535" y1="300" x2="535" y2="324" stroke="var(--proton)" stroke-width="3"/>
+<g data-k="turbine" tabindex="0" role="button" aria-label="ATP synthase">
+<circle cx="535" cy="352" r="26" fill="var(--turb-bg)" stroke="var(--turb)" stroke-width="1.5"/>
+<g id="spin" stroke="var(--turb)" stroke-width="3" stroke-linecap="round"><line x1="517" y1="352" x2="553" y2="352"/><line x1="535" y1="334" x2="535" y2="370"/></g>
+<text class="s" x="499" y="356" text-anchor="end">ADP + Pi</text>
+<text class="t" x="572" y="356">ATP</text>
+<text class="s" x="535" y="402" text-anchor="middle">ATP synthase</text>
+</g>
+<g id="fx" pointer-events="none"></g>
+</svg>
+
+<div class="controls">
+<button id="pp" type="button">Pause</button>
+<label for="sup">NADH supply</label>
+<input type="range" id="sup" min="0" max="100" step="1" value="60">
+<span id="supout" style="min-width:40px;text-align:right">60%</span>
+</div>
+<p id="status" aria-live="polite"></p>
+<div class="stats">
+<div class="stat"><b id="sTank">0%</b><span>proton tank full</span></div>
+<div class="stat"><b id="sRate">0</b><span>ATP per second</span></div>
+<div class="stat"><b id="sAtp">0</b><span>ATP made so far</span></div>
+</div>
+<div class="legend"><span><i style="background:var(--water)"></i>electrons falling</span><span><i style="background:var(--proton)"></i>protons pumped uphill</span><span><i style="background:var(--turb)"></i>ATP</span></div>
+<p id="cap">Click any step, the tank, or the turbine to see what it does.</p>
+</div>
+
+<h2>Why ATP matters</h2>
+<p>All that machinery exists to make one molecule. ATP (adenosine triphosphate) is the cell's energy currency: a small, rechargeable package of energy that every part of the cell knows how to spend.</p>
+<div class="eq">ATP ⇄ ADP + Pi + energy</div>
+<p>Breaking off the last phosphate releases a burst of usable energy. The waterfall you just watched puts that phosphate back, so the same molecules are spent and recharged over and over.</p>
+<div class="why">
+<div><h3>It powers movement</h3><p>Muscle fibers use ATP to slide against each other and contract. Without it, muscles lock stiff, which is what happens in rigor mortis.</p></div>
+<div><h3>It runs the cell's pumps</h3><p>The Na⁺/K⁺ pump uses ATP to keep nerve cells ready to fire. Your brain spends a large share of your energy budget on this alone.</p></div>
+<div><h3>It builds things</h3><p>Making proteins, DNA, and membranes are uphill reactions. ATP pays for them by coupling to each step.</p></div>
+<div><h3>It's recycled constantly</h3><p>The body holds only a few dozen grams at once but turns over roughly its own weight in ATP each day, so production has to keep pace with use.</p></div>
+</div>
+<p>That is why the chain is so vulnerable. Cyanide blocks Complex IV, so electrons can't reach oxygen. The waterfall backs up, the tank drains, and ATP production collapses within minutes. Try dragging the slider to zero to see the same thing happen here.</p>
+<p>The payoff is large: one glucose molecule yields about 30 ATP in total, and the electron transport chain accounts for most of them.</p>
+</main>
+
+<script>
+(function(){
+var NS='http://www.w3.org/2000/svg';
+var fx=document.getElementById('fx'),water=document.getElementById('water'),spin=document.getElementById('spin');
+var sup=document.getElementById('sup');
+var T={src:'NADH and FADH₂ arrive from the Krebs cycle carrying high-energy electrons, like water at the top of a cliff.',I:'Complex I takes electrons from NADH. As they drop, it uses the energy to pump H⁺ up into the intermembrane space.',III:'Complex III takes the next drop and pumps more H⁺. FADH₂ joins the chain earlier via Complex II, which pumps nothing, so it yields less ATP than NADH.',IV:'Complex IV pumps the last H⁺ and hands the electrons to oxygen.',end:'Oxygen catches the electrons and forms water. Without oxygen the waterfall backs up and the whole chain stalls.',tank:'The pumped H⁺ pile up on one side of the membrane, like water behind a dam. This stored pressure is the proton gradient.',turbine:'H⁺ rush back down through ATP synthase and spin it. That spinning joins ADP and Pi to make ATP.'};
+function say(k){document.getElementById('cap').textContent=T[k]}
+document.querySelectorAll('[data-k]').forEach(function(g){
+g.addEventListener('click',function(){say(g.dataset.k)});
+g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();say(g.dataset.k)}});
+});
+var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var running=!reduce,s=+sup.value,level=0,ang=0,atp=0;
+var P=[[120,80],[120,120],[190,120],[190,190],[260,190],[260,260],[330,260],[330,330]],cum=[0];
+for(var i=1;i<P.length;i++)cum.push(cum[i-1]+Math.abs(P[i][0]-P[i-1][0])+Math.abs(P[i][1]-P[i-1][1]));
+var total=cum[cum.length-1],pumpAt=[cum[2],cum[4],cum[6]],pumpY=[134,204,274],pumpX=[205,275,345];
+function pos(d){for(var i=1;i<P.length;i++)if(d<=cum[i]){var f=(d-cum[i-1])/(cum[i]-cum[i-1]);return[P[i-1][0]+(P[i][0]-P[i-1][0])*f,P[i-1][1]+(P[i][1]-P[i-1][1])*f]}return P[P.length-1]}
+function dot(r,c){var e=document.createElementNS(NS,'circle');e.setAttribute('r',r);e.setAttribute('fill',c);fx.appendChild(e);return e}
+var E=[],H=[],D=[],A=[],eAcc=0,dAcc=0,ratePts=[];
+function top(){return 298-level}
+function frame(t){
+var dt=Math.min((t-(frame.l||t))/1000,.05);frame.l=t;
+var target=s>0?10+s/100*230:0;
+level+=(target-level)*Math.min(1,dt*(running?2.5:0));
+water.setAttribute('y',top());water.setAttribute('height',Math.max(level,0));
+if(running&&s>0){
+eAcc+=dt*(s/100)*5;
+while(eAcc>=1){eAcc-=1;E.push({d:0,el:dot(3.5,'var(--water)'),p:[0,0,0]})}
+dAcc+=dt*(s/100)*3*Math.min(1,level/40);
+while(dAcc>=1){dAcc-=1;D.push({y:Math.max(top()+8,60),el:dot(3,'var(--proton)')})}
+}
+var sp=60+s*1.1;
+for(var i=E.length-1;i>=0;i--){var e=E[i];if(running)e.d+=dt*sp;
+for(var j=0;j<3;j++)if(!e.p[j]&&e.d>=pumpAt[j]){e.p[j]=1;H.push({x:pumpX[j],y:pumpY[j],tx:462+Math.random()*146,ty:Math.max(top(),60)+8+Math.random()*(Math.max(level,20)-16),t:0,el:dot(3,'var(--proton)')})}
+if(e.d>=total){fx.removeChild(e.el);E.splice(i,1);continue}
+var q=pos(e.d);e.el.setAttribute('cx',q[0]);e.el.setAttribute('cy',q[1])}
+for(i=H.length-1;i>=0;i--){var h=H[i];if(running)h.t+=dt/.9;
+if(h.t>=1){fx.removeChild(h.el);H.splice(i,1);continue}
+var k=1-Math.pow(1-h.t,2);h.el.setAttribute('cx',h.x+(h.tx-h.x)*k);h.el.setAttribute('cy',h.y+(h.ty-h.y)*k);h.el.setAttribute('opacity',h.t>.75?(1-h.t)*4:1)}
+for(i=D.length-1;i>=0;i--){var d=D[i];if(running)d.y+=dt*(90+s);
+if(d.y>=352){fx.removeChild(d.el);D.splice(i,1);A.push({x:558,y:352,t:0,el:dot(6,'var(--turb)')});atp++;ratePts.push(t);continue}
+d.el.setAttribute('cx',535);d.el.setAttribute('cy',d.y)}
+for(i=A.length-1;i>=0;i--){var a=A[i];if(running)a.t+=dt/1.2;
+if(a.t>=1){fx.removeChild(a.el);A.splice(i,1);continue}
+a.el.setAttribute('cx',a.x+a.t*92);a.el.setAttribute('cy',a.y-a.t*40);a.el.setAttribute('opacity',1-a.t*a.t)}
+if(running&&s>0)ang+=dt*(level/240)*720;
+spin.setAttribute('transform','rotate('+ang+' 535 352)');
+while(ratePts.length&&t-ratePts[0]>2000)ratePts.shift();
+document.getElementById('sTank').textContent=Math.round(level/240*100)+'%';
+document.getElementById('sRate').textContent=(ratePts.length/2).toFixed(1);
+document.getElementById('sAtp').textContent=atp;
+requestAnimationFrame(frame)}
+function msg(){var m=s===0?'No fuel. The waterfall stops, the tank drains, and no ATP is made.':s<30?'Low supply. A slow trickle of electrons keeps the tank shallow and ATP output low.':s<70?'Moderate supply. Steady pumping keeps the turbine turning at a comfortable pace.':'High supply. The tank fills fast and the turbine spins hard, so ATP output is high.';
+document.getElementById('status').textContent=m}
+sup.addEventListener('input',function(){s=+sup.value;document.getElementById('supout').textContent=s+'%';msg()});
+document.getElementById('pp').addEventListener('click',function(){running=!running;this.textContent=running?'Pause':'Resume'});
+document.getElementById('pp').textContent=running?'Pause':'Resume';
+msg();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
