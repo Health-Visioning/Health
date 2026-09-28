@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From food to the Krebs cycle, carbon by carbon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F8F7F4; --panel:#FCFBF9; --ink:#1C1F26; --ink-soft:#454B54; --muted:#767D87;
+  --hairline:#E3E0D6; --teal:#1D9E75; --teal-tint:#E1F5EE; --amber:#BA7517; --amber-tint:#FAEEDA;
+  --coral:#D85A30; --coral-tint:#FAECE7; --gray-tint:#F1EFE8;
+  --carbon:#3E4C59; --carbon-leaving:#B4B2A9; --fuel:#BA7517;
+}
+:root[data-theme="dark"]{
+  --paper:#14171B; --panel:#1B1F24; --ink:#EDEEF0; --ink-soft:#C7CBD1; --muted:#8A9099;
+  --hairline:#2C3138; --teal:#5DCAA5; --teal-tint:#04342C; --amber:#EF9F27; --amber-tint:#412402;
+  --coral:#F0997B; --coral-tint:#4A1B0C; --gray-tint:#2C2C2A;
+  --carbon:#C7CBD1; --carbon-leaving:#5A5F66; --fuel:#EF9F27;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif; font-size:14px;}
+.wrap{max-width:800px;margin:0 auto;padding:32px 20px 60px;}
+.eyebrow{color:var(--muted); font-size:12px; margin-bottom:6px;}
+h1{font-family:'Lora',Georgia,serif; font-weight:600; font-size:24px; line-height:1.3; margin:0 0 10px;}
+.dek{color:var(--ink-soft); font-size:14px; line-height:1.6; max-width:66ch; margin:0 0 28px;}
+
+.pipeline{ display:flex; flex-direction:column; align-items:center; }
+.step{ width:100%; max-width:480px; }
+.step-wide{ width:100%; max-width:760px; }
+.step-box{ background:var(--panel); border:1.5px solid var(--hairline); border-radius:10px; padding:14px 18px; text-align:center; }
+.step-box.teal{ background:var(--teal-tint); border-color:var(--teal); }
+.step-box.amber{ background:var(--amber-tint); border-color:var(--amber); }
+.step-num{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+.step-title{ font-family:'Lora',serif; font-weight:600; font-size:16px; margin:0 0 4px; }
+.step-desc{ font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0; }
+.arrow-down{ display:flex; justify-content:center; margin:6px 0; }
+.arrow-down svg{ display:block; }
+.side-note{ max-width:480px; margin:10px 0 0; padding:10px 16px; background:var(--gray-tint); border-radius:8px; font-size:12.5px; color:var(--muted); line-height:1.5; text-align:center; }
+.endpoint{ margin-top:8px; padding:16px 20px; border:2px dashed var(--coral); border-radius:10px; background:var(--coral-tint); text-align:center; max-width:480px; }
+.endpoint .step-title{ color:var(--coral); }
+.pip{ display:inline-block; width:11px; height:11px; border-radius:50%; background:var(--fuel); vertical-align:middle; margin:0 1px; }
+
+.combo-row{ display:flex; align-items:stretch; gap:16px; }
+.combo-left{ flex:0 0 260px; display:flex; flex-direction:column; justify-content:center; }
+.combo-right{ flex:1; background:var(--panel); border:1px solid var(--hairline); border-radius:10px; padding:10px 10px 6px; }
+.combo-svg{ width:100%; height:auto; display:block; }
+.combo-caption{ font-size:11.5px; color:var(--muted); text-align:center; margin:6px 0 2px; line-height:1.4; }
+
+.carbon-node{ fill:var(--carbon); }
+.carbon-leaving{ fill:var(--carbon-leaving); }
+.bond{ stroke:var(--carbon); stroke-width:2.5; }
+.bond-fading{ stroke:var(--carbon-leaving); stroke-width:2; stroke-dasharray:3 3; }
+.clabel{ font-family:'IBM Plex Mono',monospace; font-size:9.5px; fill:var(--paper); text-anchor:middle; font-weight:600; }
+.mlabel-sub{ font-family:'Inter',sans-serif; font-size:11px; fill:var(--ink-soft); text-anchor:middle; }
+.scissors-label{ font-family:'Inter',sans-serif; font-size:10.5px; fill:var(--coral); text-anchor:middle; font-weight:700; }
+.arr-svg{ stroke:var(--ink-soft); stroke-width:2; fill:none; }
+.coa-box{ fill:var(--amber-tint); stroke:var(--amber); stroke-width:1.5; }
+.co2-cloud{ fill:var(--carbon-leaving); opacity:0.5; }
+
+/* Krebs loop */
+.kframe{ background:var(--panel); border:1px solid var(--hairline); border-radius:12px; padding:14px 10px; max-width:660px; margin:0 auto; }
+.kframe svg{ width:100%; height:auto; display:block; }
+.kbox{ fill:none; stroke:var(--hairline); stroke-width:2; }
+.kbox-start{ stroke:var(--carbon); }
+.kdot{ fill:var(--carbon); }
+.kdot-new{ fill:var(--fuel); }
+.kco2{ fill:var(--carbon-leaving); opacity:.7; }
+.karr{ fill:none; stroke:var(--ink-soft); stroke-width:2.2; }
+.khead{ fill:var(--ink-soft); }
+.kcount{ font-family:'Lora',serif; font-size:17px; font-weight:600; fill:var(--ink); text-anchor:middle; }
+.ksub{ font-size:11.5px; fill:var(--muted); text-anchor:middle; }
+.klbl{ font-size:12.5px; font-weight:600; fill:var(--ink); text-anchor:middle; }
+.klbl-fuel{ fill:var(--fuel); }
+.klbl-start{ font-size:12.5px; font-weight:600; fill:var(--fuel); text-anchor:start; }
+.ksub-start{ font-size:11.5px; fill:var(--muted); text-anchor:start; }
+.kcenter{ font-family:'Lora',serif; font-size:15px; font-weight:600; fill:var(--ink); text-anchor:middle; }
+
+.foot-note{ margin-top:22px; font-size:12.5px; color:var(--muted); line-height:1.6; text-align:center; max-width:66ch; margin-left:auto; margin-right:auto; }
+
+@media (max-width:700px){
+  .combo-row{ flex-direction:column; }
+  .combo-left{ flex:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">One page, start to finish</div>
+  <h1>From food to the Krebs cycle, carbon by carbon</h1>
+  <p class="dek">Follow the carbons the whole way: food is broken into glucose, glucose is cut into 3-carbon pyruvates, each pyruvate is trimmed to a 2-carbon acetyl piece &mdash; and that piece joins a 4-carbon piece to start the cycle.</p>
+
+  <div class="pipeline">
+
+    <div class="step">
+      <div class="step-box">
+        <div class="step-num">Step 1</div>
+        <div class="step-title">🍽️ Food</div>
+        <p class="step-desc">Carbs, protein, and fat &mdash; each stores energy in its chemical bonds, but none of it is usable yet.</p>
+      </div>
+    </div>
+    <div class="arrow-down"><svg width="24" height="28" viewBox="0 0 24 28"><line x1="12" y1="0" x2="12" y2="20" stroke="var(--muted)" stroke-width="2"/><path d="M4 14 L12 24 L20 14" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="step">
+      <div class="step-box">
+        <div class="step-num">Step 2</div>
+        <div class="step-title">🦷 Digestion</div>
+        <p class="step-desc">Mouth, stomach, and small intestine break each food type into its simplest building block: carbs &rarr; <strong>glucose</strong> (6 carbons).</p>
+      </div>
+      <div class="side-note">Fat breaks into fatty acids, protein breaks into amino acids &mdash; different starting routes, but they all end up feeding into the same doorway later. This page follows the glucose route, since it's the clearest one.</div>
+    </div>
+    <div class="arrow-down"><svg width="24" height="28" viewBox="0 0 24 28"><line x1="12" y1="0" x2="12" y2="20" stroke="var(--muted)" stroke-width="2"/><path d="M4 14 L12 24 L20 14" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="step">
+      <div class="step-box">
+        <div class="step-num">Step 3</div>
+        <div class="step-title">🩸 Bloodstream</div>
+        <p class="step-desc">Glucose is absorbed and carried through the blood to cells all over the body.</p>
+      </div>
+    </div>
+    <div class="arrow-down"><svg width="24" height="28" viewBox="0 0 24 28"><line x1="12" y1="0" x2="12" y2="20" stroke="var(--muted)" stroke-width="2"/><path d="M4 14 L12 24 L20 14" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- STEP 4 + molecular diagram -->
+    <div class="step-wide">
+      <div class="combo-row">
+        <div class="combo-left">
+          <div class="step-box teal">
+            <div class="step-num">Step 4 &middot; before the mitochondria</div>
+            <div class="step-title">✂️ Glucose chopped in half</div>
+            <p class="step-desc">In the cell's main fluid, glucose (6 carbons) is split into two <strong>pyruvates</strong> (3 carbons each). No oxygen needed for this part.</p>
+          </div>
+        </div>
+        <div class="combo-right">
+          <svg class="combo-svg" viewBox="0 0 420 200" role="img"><title>Glucose splitting into two pyruvate molecules</title>
+            <g>
+              <line x1="60" y1="45" x2="90" y2="45" class="bond"/>
+              <line x1="90" y1="45" x2="120" y2="45" class="bond"/>
+              <line x1="120" y1="45" x2="150" y2="45" class="bond"/>
+              <line x1="170" y1="45" x2="200" y2="45" class="bond"/>
+              <line x1="200" y1="45" x2="230" y2="45" class="bond"/>
+              <line x1="230" y1="45" x2="260" y2="45" class="bond"/>
+              <line x1="150" y1="45" x2="170" y2="45" class="bond-fading"/>
+              <text class="scissors-label" x="160" y="28">✂ cut</text>
+              <circle cx="60"  cy="45" r="11" class="carbon-node"/><text class="clabel" x="60"  y="48">C</text>
+              <circle cx="90"  cy="45" r="11" class="carbon-node"/><text class="clabel" x="90"  y="48">C</text>
+              <circle cx="120" cy="45" r="11" class="carbon-node"/><text class="clabel" x="120" y="48">C</text>
+              <circle cx="170" cy="45" r="11" class="carbon-node"/><text class="clabel" x="170" y="48">C</text>
+              <circle cx="200" cy="45" r="11" class="carbon-node"/><text class="clabel" x="200" y="48">C</text>
+              <circle cx="230" cy="45" r="11" class="carbon-node"/><text class="clabel" x="230" y="48">C</text>
+              <text class="mlabel-sub" x="160" y="78">Glucose &mdash; 6 carbons</text>
+            </g>
+            <path d="M200 95 L200 118" class="arr-svg"/>
+            <path d="M190 110 L200 120 L210 110" class="arr-svg"/>
+            <g>
+              <line x1="40" y1="155" x2="65" y2="155" class="bond"/>
+              <line x1="65" y1="155" x2="90" y2="155" class="bond"/>
+              <circle cx="40" cy="155" r="10" class="carbon-node"/>
+              <circle cx="65" cy="155" r="10" class="carbon-node"/>
+              <circle cx="90" cy="155" r="10" class="carbon-node"/>
+            </g>
+            <g>
+              <line x1="330" y1="155" x2="355" y2="155" class="bond"/>
+              <line x1="355" y1="155" x2="380" y2="155" class="bond"/>
+              <circle cx="330" cy="155" r="10" class="carbon-node"/>
+              <circle cx="355" cy="155" r="10" class="carbon-node"/>
+              <circle cx="380" cy="155" r="10" class="carbon-node"/>
+            </g>
+            <text class="mlabel-sub" x="210" y="152">two pyruvates,</text>
+            <text class="mlabel-sub" x="210" y="167">3 carbons each</text>
+          </svg>
+          <p class="combo-caption">6 carbons, cut clean in half &rarr; two identical 3-carbon pyruvates. One glucose always makes exactly two.</p>
+        </div>
+      </div>
+    </div>
+    <div class="arrow-down"><svg width="24" height="28" viewBox="0 0 24 28"><line x1="12" y1="0" x2="12" y2="20" stroke="var(--muted)" stroke-width="2"/><path d="M4 14 L12 24 L20 14" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="step">
+      <div class="step-box amber">
+        <div class="step-num">Step 5</div>
+        <div class="step-title">🚪 Pyruvate enters the mitochondria</div>
+        <p class="step-desc">Pyruvate crosses into the mitochondria &mdash; the cell's power plant, and the only place the Krebs cycle can run.</p>
+      </div>
+    </div>
+    <div class="arrow-down"><svg width="24" height="28" viewBox="0 0 24 28"><line x1="12" y1="0" x2="12" y2="20" stroke="var(--muted)" stroke-width="2"/><path d="M4 14 L12 24 L20 14" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- STEP 6 + molecular diagram -->
+    <div class="step-wide">
+      <div class="combo-row">
+        <div class="combo-left">
+          <div class="step-box amber">
+            <div class="step-num">Step 6 &middot; just inside the door</div>
+            <div class="step-title">💨 One more carbon trimmed</div>
+            <p class="step-desc">Each pyruvate (3 carbons) loses one carbon as CO2 and becomes a <strong>2-carbon acetyl</strong> piece, carried by CoA (Acetyl-CoA).</p>
+          </div>
+        </div>
+        <div class="combo-right">
+          <svg class="combo-svg" viewBox="0 0 420 190" role="img"><title>Pyruvate trimming into Acetyl-CoA</title>
+            <g>
+              <line x1="40" y1="80" x2="65" y2="80" class="bond"/>
+              <line x1="65" y1="80" x2="90" y2="80" class="bond-fading"/>
+              <circle cx="40" cy="80" r="10" class="carbon-node"/>
+              <circle cx="65" cy="80" r="10" class="carbon-node"/>
+              <circle cx="90" cy="80" r="10" class="carbon-leaving"/>
+              <text class="mlabel-sub" x="65" y="107" style="font-size:10px">Pyruvate (3 carbons)</text>
+            </g>
+            <circle cx="98" cy="32" r="16" class="co2-cloud"/>
+            <text class="scissors-label" x="98" y="36" style="fill:var(--ink-soft); font-size:9.5px">CO2</text>
+            <path d="M90 70 L96 46" class="arr-svg" opacity="0.6"/>
+            <path d="M150 80 L180 80" class="arr-svg"/>
+            <path d="M172 72 L182 80 L172 88" class="arr-svg"/>
+            <g>
+              <line x1="240" y1="80" x2="265" y2="80" class="bond"/>
+              <circle cx="240" cy="80" r="10" style="fill:var(--fuel)"/>
+              <circle cx="265" cy="80" r="10" style="fill:var(--fuel)"/>
+              <line x1="265" y1="80" x2="290" y2="80" class="bond"/>
+              <rect x="290" y="65" width="70" height="30" rx="7" class="coa-box"/>
+              <text class="mlabel-sub" x="325" y="85" style="fill:var(--ink); font-weight:600; font-size:11px">CoA</text>
+            </g>
+            <text class="mlabel-sub" x="290" y="125" style="font-weight:600; fill:var(--ink)">Acetyl-CoA</text>
+            <text class="mlabel-sub" x="290" y="141" style="font-size:10px">2 carbons + a handle</text>
+          </svg>
+          <p class="combo-caption">One carbon clipped off as CO2; the remaining 2-carbon piece clips onto CoA &mdash; a handle, not a carbon source.</p>
+        </div>
+      </div>
+    </div>
+    <div class="arrow-down"><svg width="24" height="28" viewBox="0 0 24 28"><line x1="12" y1="0" x2="12" y2="20" stroke="var(--coral)" stroke-width="2"/><path d="M4 14 L12 24 L20 14" fill="none" stroke="var(--coral)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="endpoint">
+      <div class="step-num" style="color:var(--coral)">The hand-off point</div>
+      <div class="step-title">🎟️ <span class="pip"></span><span class="pip"></span> The 2-carbon acetyl piece is the ticket into the Krebs cycle</div>
+      <p class="step-desc">It's about to join a 4-carbon piece that's already waiting inside the mitochondria.</p>
+    </div>
+    <div class="arrow-down"><svg width="24" height="28" viewBox="0 0 24 28"><line x1="12" y1="0" x2="12" y2="20" stroke="var(--coral)" stroke-width="2"/><path d="M4 14 L12 24 L20 14" fill="none" stroke="var(--coral)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- STEP 7: the Krebs loop -->
+    <div class="step-wide">
+      <div class="step-box" style="max-width:660px; margin:0 auto 12px; border-color:var(--carbon);">
+        <div class="step-num">Step 7 &middot; inside the mitochondria</div>
+        <div class="step-title">🔄 The Krebs cycle: count the carbons</div>
+        <p class="step-desc">Follow one molecule around the loop: it gains 2, loses 1, loses 1 &mdash; and ends up exactly where it started.</p>
+      </div>
+
+      <div class="kframe">
+        <svg viewBox="-20 0 660 520" role="img" aria-label="The 4-carbon piece gains a 2-carbon acetyl piece to become 6 carbons, then loses one carbon as CO2 twice, returning to 4 carbons">
+
+          <!-- TOP: 4-carbon piece -->
+          <rect class="kbox kbox-start" x="185" y="40" width="230" height="100" rx="14"/>
+          <g>
+            <circle class="kdot" cx="240" cy="78" r="12"/><circle class="kdot" cx="270" cy="78" r="12"/>
+            <circle class="kdot" cx="300" cy="78" r="12"/><circle class="kdot" cx="330" cy="78" r="12"/>
+          </g>
+          <text class="kcount" x="300" y="112">4 carbons</text>
+          <text class="ksub" x="300" y="130">the 4-carbon piece (oxaloacetate)</text>
+
+          <!-- LOWER RIGHT: 6 carbons -->
+          <rect class="kbox" x="355" y="310" width="230" height="100" rx="14"/>
+          <g>
+            <circle class="kdot" cx="390" cy="348" r="12"/><circle class="kdot" cx="420" cy="348" r="12"/>
+            <circle class="kdot" cx="450" cy="348" r="12"/><circle class="kdot" cx="480" cy="348" r="12"/>
+            <circle class="kdot-new" cx="510" cy="348" r="12"/><circle class="kdot-new" cx="540" cy="348" r="12"/>
+          </g>
+          <text class="kcount" x="470" y="382">6 carbons</text>
+          <text class="ksub" x="470" y="400">the 4-carbon piece + the 2-carbon acetyl</text>
+
+          <!-- LOWER LEFT: 5 carbons -->
+          <rect class="kbox" x="15" y="310" width="230" height="100" rx="14"/>
+          <g>
+            <circle class="kdot" cx="55" cy="348" r="12"/><circle class="kdot" cx="85" cy="348" r="12"/>
+            <circle class="kdot" cx="115" cy="348" r="12"/><circle class="kdot" cx="145" cy="348" r="12"/>
+            <circle class="kdot" cx="175" cy="348" r="12"/>
+          </g>
+          <text class="kcount" x="130" y="382">5 carbons</text>
+          <text class="ksub" x="130" y="400">one carbon has left</text>
+
+          <!-- ARROW 1: top -> lower right (2-carbon acetyl joins) -->
+          <path class="karr" d="M405 132 Q520 170 500 300"/>
+          <polygon class="khead" points="500,308 491,292 509,292"/>
+          <circle class="kdot-new" cx="545" cy="175" r="10"/><circle class="kdot-new" cx="570" cy="175" r="10"/>
+          <text class="klbl-start" x="520" y="208">+2 carbons</text>
+          <text class="ksub-start" x="520" y="225">the 2-carbon acetyl</text>
+          <text class="ksub-start" x="520" y="240">(made from pyruvate) joins</text>
+
+          <!-- ARROW 2: lower right -> lower left (lose 1) -->
+          <path class="karr" d="M350 385 Q300 440 252 385"/>
+          <polygon class="khead" points="247,380 265,382 257,396"/>
+          <circle class="kco2" cx="300" cy="470" r="16"/>
+          <text class="klbl" x="300" y="475" style="font-size:11px; fill:var(--ink-soft)">CO2</text>
+          <text class="klbl" x="300" y="503">&minus;1 carbon</text>
+
+          <!-- ARROW 3: lower left -> top (lose 1) -->
+          <path class="karr" d="M110 300 Q90 170 195 125"/>
+          <polygon class="khead" points="203,121 188,133 184,115"/>
+          <circle class="kco2" cx="60" cy="205" r="16"/>
+          <text class="klbl" x="60" y="210" style="font-size:11px; fill:var(--ink-soft)">CO2</text>
+          <text class="klbl" x="60" y="240">&minus;1 carbon</text>
+
+          <!-- center -->
+          <text class="kcenter" x="300" y="245">+2, &minus;1, &minus;1</text>
+          <text class="ksub" x="300" y="266">back to 4 &mdash; ready for more acetyl</text>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="foot-note">Tally per original glucose molecule: 6 carbons &rarr; 2 pyruvates (3 each) &rarr; 2 acetyl pieces (2 each) + 2 CO2 already exhaled &rarr; the Krebs loop above runs <strong>twice</strong>, once per acetyl piece, each lap losing 2 more carbons as CO2. Along the way the cycle also catches small bursts of energy in rechargeable batteries &mdash; that part is a separate diagram.</p>
+</div>
+</body>
+</html>

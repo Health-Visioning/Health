@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Krebs cycle: where the energy gets caught</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F8F7F4; --panel:#FCFBF9; --ink:#1C1F26; --ink-soft:#454B54; --muted:#767D87;
+  --hairline:#E3E0D6; --carbon:#3E4C59; --fuel:#BA7517; --fuel-tint:#FAEEDA;
+  --co2:#B4B2A9; --batt:#1D9E75; --batt-tint:#E1F5EE; --coin:#D9A441; --coral:#D85A30;
+}
+:root[data-theme="dark"]{
+  --paper:#14171B; --panel:#1B1F24; --ink:#EDEEF0; --ink-soft:#C7CBD1; --muted:#8A9099;
+  --hairline:#2C3138; --carbon:#C7CBD1; --fuel:#EF9F27; --fuel-tint:#412402;
+  --co2:#5A5F66; --batt:#5DCAA5; --batt-tint:#04342C; --coin:#EF9F27; --coral:#F0997B;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);}
+body{font-family:'Inter',system-ui,sans-serif; font-size:14px;}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 56px;}
+.eyebrow{color:var(--muted); font-size:12px; margin-bottom:6px;}
+h1{font-family:'Lora',Georgia,serif; font-weight:600; font-size:24px; line-height:1.3; margin:0 0 10px;}
+.dek{color:var(--ink-soft); font-size:14.5px; line-height:1.6; max-width:62ch; margin:0 0 22px;}
+.dek strong{color:var(--ink);}
+
+.frame{background:var(--panel); border:1px solid var(--hairline); border-radius:12px; padding:14px 10px;}
+svg{width:100%; height:auto; display:block;}
+
+.box{fill:none; stroke:var(--hairline); stroke-width:2;}
+.box-start{stroke:var(--carbon);}
+.dot{fill:var(--carbon);}
+.dot-new{fill:var(--fuel);}
+.co2{fill:var(--co2); opacity:.7;}
+.arr{fill:none; stroke:var(--ink-soft); stroke-width:2.2;}
+.head{fill:var(--ink-soft);}
+.count{font-family:'Lora',serif; font-size:17px; font-weight:600; fill:var(--ink); text-anchor:middle;}
+.sub{font-size:11.5px; fill:var(--muted); text-anchor:middle;}
+.lbl{font-size:12.5px; font-weight:600; fill:var(--ink); text-anchor:middle;}
+.lbl-s{font-size:12px; font-weight:600; fill:var(--ink); text-anchor:start;}
+.sub-s{font-size:11px; fill:var(--muted); text-anchor:start;}
+.lbl-fuel{font-size:12.5px; font-weight:600; fill:var(--fuel); text-anchor:start;}
+.center-big{font-family:'Lora',serif; font-size:16px; font-weight:600; fill:var(--ink); text-anchor:middle;}
+.batt-body{fill:none; stroke:var(--ink-soft); stroke-width:1.8;}
+.batt-nub{fill:var(--ink-soft);}
+.batt-fill{fill:var(--batt);}
+.coin{fill:var(--coin); stroke:var(--ink-soft); stroke-width:1.2;}
+.coin-t{font-size:7.5px; font-weight:700; fill:#1C1F26; text-anchor:middle;}
+.hdr{font-size:11.5px; font-weight:700; fill:var(--coral); text-anchor:start;}
+
+.cards{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;}
+.card{background:var(--panel); border:1px solid var(--hairline); border-radius:10px; padding:14px 16px;}
+.card h3{font-family:'Lora',serif; font-size:15px; font-weight:600; margin:0 0 8px;}
+.chips{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center;}
+.chip{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-soft);}
+.chip b{color:var(--ink);}
+.chip svg{width:34px; height:22px; flex:none;}
+.chip .co2dot{width:16px; height:16px; border-radius:50%; background:var(--co2); opacity:.7; display:inline-block;}
+
+.flow{margin-top:16px; background:var(--panel); border:1px solid var(--hairline); border-radius:10px; padding:16px;}
+.flow h3{font-family:'Lora',serif; font-size:15px; font-weight:600; margin:0 0 10px;}
+.flow-row{display:flex; align-items:stretch; gap:8px;}
+.fbox{flex:1; border:1.5px solid var(--hairline); border-radius:8px; padding:10px 12px; text-align:center; font-size:12.5px; color:var(--ink-soft); line-height:1.45;}
+.fbox strong{display:block; color:var(--ink); font-size:13px; margin-bottom:2px;}
+.fbox.b{background:var(--batt-tint); border-color:var(--batt);}
+.fbox.a{background:var(--fuel-tint); border-color:var(--fuel);}
+.farr{align-self:center; color:var(--muted); font-size:18px;}
+.flow p{font-size:13px; color:var(--ink-soft); line-height:1.6; margin:12px 0 0;}
+.flow p strong{color:var(--ink);}
+.foot{margin-top:14px; font-size:12px; color:var(--muted); line-height:1.6;}
+
+@media (max-width:640px){
+  .cards{grid-template-columns:1fr;}
+  .flow-row{flex-direction:column;}
+  .farr{transform:rotate(90deg);}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Part 3 &mdash; the energy the cycle makes</div>
+  <h1>The Krebs cycle: where the energy gets caught</h1>
+  <p class="dek">Same loop, same carbon counts as before &mdash; now showing where the energy gets caught. <strong>Three kinds of payout:</strong> big batteries, a small battery, and one cash coin. The carbons leaving as CO2 are just exhaust; the batteries are the real prize.</p>
+
+  <div class="frame">
+    <svg viewBox="-70 0 830 640" role="img" aria-label="The Krebs carbon loop with energy captures: two big batteries where carbon leaves as CO2, then three squeeze stops with no carbon lost yielding a cash coin, a small battery and a third big battery">
+      <defs>
+        <g id="bigbatt">
+          <rect x="-16" y="-11" width="32" height="22" rx="3" class="batt-body"/>
+          <rect x="16" y="-6" width="4" height="12" rx="1" class="batt-nub"/>
+          <rect x="-13" y="-8" width="26" height="16" class="batt-fill"/>
+        </g>
+        <g id="smallbatt">
+          <rect x="-12" y="-8" width="24" height="16" rx="3" class="batt-body"/>
+          <rect x="12" y="-4" width="3" height="8" rx="1" class="batt-nub"/>
+          <rect x="-9" y="-5" width="10" height="10" class="batt-fill"/>
+        </g>
+        <g id="coinicon">
+          <circle r="12" class="coin"/>
+          <text class="coin-t" y="3">GTP</text>
+        </g>
+      </defs>
+
+      <!-- TOP: 4 carbons -->
+      <rect class="box box-start" x="225" y="30" width="210" height="95" rx="14"/>
+      <circle class="dot" cx="285" cy="64" r="11"/><circle class="dot" cx="315" cy="64" r="11"/>
+      <circle class="dot" cx="345" cy="64" r="11"/><circle class="dot" cx="375" cy="64" r="11"/>
+      <text class="count" x="330" y="98">4 carbons</text>
+      <text class="sub" x="330" y="115">the 4-carbon piece (oxaloacetate)</text>
+
+      <!-- RIGHT: 6 carbons -->
+      <rect class="box" x="485" y="255" width="200" height="95" rx="14"/>
+      <circle class="dot" cx="515" cy="287" r="11"/><circle class="dot" cx="543" cy="287" r="11"/>
+      <circle class="dot" cx="571" cy="287" r="11"/><circle class="dot" cx="599" cy="287" r="11"/>
+      <circle class="dot-new" cx="627" cy="287" r="11"/><circle class="dot-new" cx="655" cy="287" r="11"/>
+      <text class="count" x="585" y="322">6 carbons</text>
+      <text class="sub" x="585" y="340">4 + the 2-carbon acetyl</text>
+
+      <!-- BOTTOM: 5 carbons -->
+      <rect class="box" x="230" y="480" width="200" height="95" rx="14"/>
+      <circle class="dot" cx="274" cy="512" r="11"/><circle class="dot" cx="302" cy="512" r="11"/>
+      <circle class="dot" cx="330" cy="512" r="11"/><circle class="dot" cx="358" cy="512" r="11"/>
+      <circle class="dot" cx="386" cy="512" r="11"/>
+      <text class="count" x="330" y="547">5 carbons</text>
+      <text class="sub" x="330" y="565">one carbon has left</text>
+
+      <!-- LEFT: 4 carbons again -->
+      <rect class="box" x="-25" y="255" width="200" height="95" rx="14"/>
+      <circle class="dot" cx="33" cy="287" r="11"/><circle class="dot" cx="61" cy="287" r="11"/>
+      <circle class="dot" cx="89" cy="287" r="11"/><circle class="dot" cx="117" cy="287" r="11"/>
+      <text class="count" x="75" y="322">4 carbons</text>
+      <text class="sub" x="75" y="340">4 again &mdash; more energy to squeeze</text>
+
+      <!-- ARROW A: top -> right (acetyl joins) -->
+      <path class="arr" d="M440 85 Q585 85 585 245"/>
+      <polygon class="head" points="585,252 576,236 594,236"/>
+      <circle class="dot-new" cx="612" cy="118" r="10"/><circle class="dot-new" cx="636" cy="118" r="10"/>
+      <text class="lbl-fuel" x="606" y="152">+2 carbons</text>
+      <text class="sub-s" x="606" y="168">the 2-carbon acetyl</text>
+      <text class="sub-s" x="606" y="182">(made from pyruvate)</text>
+      <text class="sub-s" x="606" y="196">joins the loop</text>
+
+      <!-- ARROW B: right -> bottom (CO2 + big battery) -->
+      <path class="arr" d="M585 355 Q585 528 440 528"/>
+      <polygon class="head" points="432,528 448,519 448,537"/>
+      <circle class="co2" cx="645" cy="395" r="15"/>
+      <text class="sub" x="645" y="399" style="font-size:10px; fill:var(--ink-soft); font-weight:600">CO2</text>
+      <text class="lbl" x="645" y="428">&minus;1 carbon</text>
+      <use href="#bigbatt" transform="translate(645,466)"/>
+      <text class="lbl" x="645" y="494">+1 big battery</text>
+
+      <!-- ARROW C: bottom -> left (CO2 + big battery) -->
+      <path class="arr" d="M222 528 Q75 528 75 358"/>
+      <polygon class="head" points="75,352 66,368 84,368"/>
+      <circle class="co2" cx="10" cy="395" r="15"/>
+      <text class="sub" x="10" y="399" style="font-size:10px; fill:var(--ink-soft); font-weight:600">CO2</text>
+      <text class="lbl" x="10" y="428">&minus;1 carbon</text>
+      <use href="#bigbatt" transform="translate(10,466)"/>
+      <text class="lbl" x="10" y="494">+1 big battery</text>
+
+      <!-- ARROW D: left -> top (three squeeze stops, no carbon lost) -->
+      <path class="arr" d="M75 250 Q75 77 215 77"/>
+      <polygon class="head" points="223,77 207,68 207,86"/>
+      <text class="hdr" x="-62" y="42">3 squeeze stops,</text>
+      <text class="hdr" x="-62" y="57">no carbon lost:</text>
+
+      <use href="#coinicon" transform="translate(-50,215)"/>
+      <text class="lbl-s" x="-30" y="212">1 &middot; +1 cash coin</text>
+      <text class="sub-s" x="-30" y="227">paid out directly</text>
+
+      <use href="#smallbatt" transform="translate(-50,160)"/>
+      <text class="lbl-s" x="-30" y="157">2 &middot; +1 small battery</text>
+      <text class="sub-s" x="-30" y="172">worth a bit less</text>
+
+      <use href="#bigbatt" transform="translate(-50,105)"/>
+      <text class="lbl-s" x="-30" y="102">3 &middot; +1 big battery</text>
+      <text class="sub-s" x="-30" y="117">back to the start</text>
+
+      <!-- center -->
+      <text class="center-big" x="330" y="285">one lap makes</text>
+      <text class="center-big" x="330" y="310">4 batteries + 1 coin</text>
+      <text class="sub" x="330" y="332">3 big + 1 small, plus 1 cash coin</text>
+      <text class="sub" x="330" y="350">and lets go of 2 CO2</text>
+    </svg>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Per lap</h3>
+      <div class="chips">
+        <span class="chip"><svg viewBox="-20 -13 44 26"><use href="#bigbatt"/></svg><b>3</b> big batteries</span>
+        <span class="chip"><svg viewBox="-16 -11 36 22"><use href="#smallbatt"/></svg><b>1</b> small battery</span>
+        <span class="chip"><svg viewBox="-14 -14 28 28"><use href="#coinicon"/></svg><b>1</b> cash coin</span>
+        <span class="chip"><span class="co2dot"></span><b>2</b> CO2</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Per glucose (2 laps)</h3>
+      <div class="chips">
+        <span class="chip"><svg viewBox="-20 -13 44 26"><use href="#bigbatt"/></svg><b>6</b> big batteries</span>
+        <span class="chip"><svg viewBox="-16 -11 36 22"><use href="#smallbatt"/></svg><b>2</b> small batteries</span>
+        <span class="chip"><svg viewBox="-14 -14 28 28"><use href="#coinicon"/></svg><b>2</b> cash coins</span>
+        <span class="chip"><span class="co2dot"></span><b>4</b> CO2</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <h3>What happens to the batteries next</h3>
+    <div class="flow-row">
+      <div class="fbox a"><strong>The Krebs loop</strong>charges the batteries, pays out the coin</div>
+      <div class="farr">&rarr;</div>
+      <div class="fbox b"><strong>Charged batteries</strong>carried to the cell's power plant</div>
+      <div class="farr">&rarr;</div>
+      <div class="fbox a"><strong>ATP</strong>the energy your cells actually spend</div>
+    </div>
+    <p>At the power plant, each <strong>big battery</strong> is cashed in for about <strong>2.5 ATP</strong>, each <strong>small battery</strong> for about <strong>1.5 ATP</strong>, and the <strong>cash coin</strong> is already worth <strong>1 ATP</strong>. That adds up to roughly <strong>10 ATP per lap</strong> &mdash; about <strong>20 per glucose</strong> from this stage alone. The coin is the only energy paid out directly; nearly all of the payoff comes from cashing in the batteries.</p>
+  </div>
+
+  <p class="foot">The 2.5 and 1.5 figures are widely used textbook estimates; exact values vary slightly between sources. Battery names, if you want them: big battery = NADH, small battery = FADH2, cash coin = GTP (readily converted to ATP).</p>
+</div>
+</body>
+</html>
