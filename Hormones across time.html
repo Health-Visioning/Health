@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hormones across time</title>
+<style>
+:root{--bg:#f7f4ed;--ink:#0b0b0b;--ink2:#52514e;--mut:#898781;--line:rgba(11,11,11,.14);--card:#ece8de;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--mut:#898781;--line:rgba(255,255,255,.16);--card:#262624}}
+:root[data-theme="dark"]{--bg:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--mut:#898781;--line:rgba(255,255,255,.16);--card:#262624}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:900px;margin:0 auto;padding:24px 16px 32px}
+h1{font-size:24px;font-weight:500;margin:0 0 4px}
+.sub{color:var(--ink2);font-size:14px;margin:0 0 20px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;align-items:center}
+button{font:inherit;font-size:14px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer}
+button:hover{background:var(--card)}
+button.on{background:var(--card);border-color:var(--mut);font-weight:500}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;padding:6px 10px}
+.chip small{font-size:12px;color:var(--ink2)}
+.chip.off span,.chip.off small{color:var(--mut)}
+#desc{font-size:13px;color:var(--mut);margin:0 0 4px}
+.hd{border-top:1px solid var(--line);padding:14px 0}
+.hd h3{font-size:15px;font-weight:500;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.hd h3 small{font-size:12px;font-weight:400;color:var(--ink2)}
+.hd p{margin:0;font-size:14px;color:var(--ink2)}
+footer{text-align:center;font-size:13px;color:var(--mut);margin-top:24px}
+.wrap{position:relative;height:360px}
+.note{font-size:12px;color:var(--mut);margin:16px 0 0}
+.sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+</style>
+</head>
+<body>
+<main>
+<h1>Hormones across time</h1>
+<p class="sub">Relative hormone levels (% of each hormone's own peak) across five time scales. Click a hormone in the legend above the graph to turn its line on or off. An explanation of each hormone you turn on appears below the graph.</p>
+<div class="row" id="scales"></div>
+<div class="row" id="sexrow" style="display:none"><span style="font-size:14px;color:var(--ink2)">Show sex hormones for</span><button data-x="f" class="on">Female</button><button data-x="m">Male</button></div>
+<p id="desc"></p>
+<div class="row" id="chips"></div>
+<div class="wrap"><canvas id="hc" role="img" aria-label="Relative hormone levels over the selected time scale, shown as a percentage of each hormone's own peak.">Relative hormone levels over time for the selected scale: day, month, year, lifetime, or pregnancy.</canvas></div>
+<section id="details" aria-live="polite"></section>
+<p class="note">Curves are schematic, based on typical textbook patterns rather than measured data. Individual levels vary with age, sex, sleep, stress, and health. This is not medical advice.</p>
+<footer>Health Visioning, 2026</footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const TAU=Math.PI*2,D=['','6,4','2,3','10,3,2,3','1,5','12,4'];
+const g=(x,m,s)=>Math.exp(-((x-m)**2)/(2*s*s));
+const cg=(x,m,s)=>{let d=Math.abs(x-m);d=Math.min(d,24-d);return Math.exp(-d*d/(2*s*s))};
+const cl=v=>Math.max(0,Math.min(100,v));
+const seas=(m,pk,b,a)=>b+a*Math.cos(TAU*(m-pk)/12);
+const lerp=p=>x=>{for(let i=1;i<p.length;i++){if(x<=p[i][0]){const[a,b]=p[i-1],[c,d]=p[i];return b+(d-b)*(x-a)/(c-a)}}return p[p.length-1][1]};
+const rng=(n,s=0)=>Array.from({length:n},(_,i)=>i+s);
+const hours=rng(49).map(i=>i/2),hl=h=>Math.floor(h)+':'+(h%1?'30':'00');
+const mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let sex='f',cur='day',chart;
+
+const GH={n:'Growth hormone',gl:'Pituitary gland',c:'#1baf7a',f:lerp([[0,55],[5,40],[10,60],[14,100],[18,70],[25,35],[40,20],[60,12],[90,6]])};
+const DH={n:'DHEA-S',gl:'Adrenal glands',c:'#eb6834',f:lerp([[0,40],[1,5],[6,10],[10,25],[15,70],[25,100],[35,75],[45,55],[60,35],[75,20],[90,12]])};
+const MEL={n:'Melatonin',gl:'Pineal gland',c:'#6250d6',f:lerp([[0,5],[0.5,60],[2,100],[8,85],[12,70],[16,50],[25,38],[40,30],[60,22],[90,15]])};
+const EST={n:'Estrogen',gl:'Ovaries',c:'#e87ba4',f:lerp([[0,8],[1,3],[8,4],[11,15],[14,50],[20,85],[25,100],[35,90],[45,70],[50,35],[52,8],[60,5],[90,4]])};
+const TES={n:'Testosterone',gl:'Testes',c:'#2a78d6',f:lerp([[0,12],[1,4],[9,4],[12,25],[16,85],[20,100],[30,88],[40,75],[50,62],[60,52],[75,40],[90,32]])};
+
+const S={
+day:{label:'Day',desc:'Typical adult over 24 hours',xt:'Hour of day (24h clock)',raw:hours,xs:hours.map(hl),show:i=>i%6===0,pre:'',
+ mk:()=>[[14,'Waking'],[46,'Sleep']],
+ ser:()=>[
+ {n:'Cortisol',gl:'Adrenal glands',c:'#2a78d6',f:h=>cl(12+88*g(h,7.5,2)+10*g(h,13,1.5))},
+ {n:'Melatonin',gl:'Pineal gland',c:'#6250d6',f:h=>cl(3+97*cg(h,2.5,2.8))},
+ {n:'Growth hormone',gl:'Pituitary gland',c:'#1baf7a',f:h=>cl(6+90*cg(h,.5,1.6)+18*cg(h,4.5,1)+15*cg(h,13,.8)+12*cg(h,18,.8))},
+ {n:'Insulin',gl:'Pancreas',c:'#eb6834',f:h=>cl(10+60*g(h,7.8,.8)+80*g(h,12.8,.9)+90*g(h,18.8,1))},
+ {n:'TSH',gl:'Pituitary gland',c:'#eda100',f:h=>cl(30+70*cg(h,2.5,3.5))},
+ {n:'Testosterone',gl:'Testes (male)',c:'#e34948',f:h=>cl(62+38*cg(h,8,4))}]},
+month:{label:'Month',desc:'Typical 28-day menstrual cycle, with ovulation around day 14',xt:'Day of cycle',raw:rng(28,1),xs:rng(28,1).map(String),show:i=>[1,7,14,21,28].includes(i+1),pre:'Day ',
+ mk:()=>[[0,'Period starts'],[13,'Ovulation']],
+ ser:()=>[
+ {n:'Estrogen',gl:'Ovaries',c:'#e87ba4',f:d=>cl(10+90*g(d,13,2.2)+50*g(d,21,3.5))},
+ {n:'Progesterone',gl:'Ovaries',c:'#008300',f:d=>cl(3+97*g(d,21,3.2))},
+ {n:'LH',gl:'Pituitary gland',c:'#e34948',f:d=>cl(8+92*g(d,13.5,.9))},
+ {n:'FSH',gl:'Pituitary gland',c:'#2a78d6',f:d=>cl(14+86*g(d,2,2.8)+70*g(d,13.3,1.1))}]},
+year:{label:'Year',desc:'Seasonal drift in a typical adult. These changes are modest and vary between studies',xt:'Month',raw:rng(12),xs:mons,show:()=>true,pre:'',
+ mk:()=>[[5.6,'Summer solstice'],[11,'Winter solstice']],
+ ser:()=>[
+ {n:'Melatonin',gl:'Pineal gland',c:'#6250d6',f:m=>seas(m,11.5,65,35)},
+ {n:'TSH',gl:'Pituitary gland',c:'#eda100',f:m=>seas(m,.5,80,20)},
+ {n:'Vitamin D',gl:'Skin and kidneys',c:'#eb6834',f:m=>seas(m,7,62,38)},
+ {n:'Testosterone',gl:'Testes',c:'#2a78d6',f:m=>seas(m,9.5,90,10)}]},
+life:{label:'Lifetime',desc:'Broad trends from birth to age 90, with curves smoothed',xt:'Age (years)',raw:rng(91),xs:rng(91).map(String),show:i=>i%10===0,pre:'Age ',
+ mk:()=>sex==='f'?[[12,'Puberty'],[51,'Menopause']]:[[12,'Puberty']],
+ ser:()=>sex==='f'?[GH,EST,DH,MEL]:[GH,TES,DH,MEL]},
+preg:{label:'Pregnancy',desc:'Typical singleton pregnancy, week 0 to birth at week 40',xt:'Weeks of pregnancy',raw:rng(41),xs:rng(41).map(String),show:i=>i%4===0,pre:'Week ',
+ mk:()=>[[13,'Trimester 2'],[27,'Trimester 3'],[40,'Birth']],
+ ser:()=>[
+ {n:'hCG',gl:'Placenta',c:'#e34948',f:lerp([[0,0],[3,8],[6,45],[10,100],[14,50],[20,22],[40,15]])},
+ {n:'Progesterone',gl:'Corpus luteum, then placenta',c:'#008300',f:lerp([[0,8],[8,15],[12,25],[20,45],[30,70],[40,100]])},
+ {n:'Estrogen',gl:'Placenta',c:'#e87ba4',f:lerp([[0,3],[8,8],[16,20],[24,38],[32,62],[40,100]])},
+ {n:'Prolactin',gl:'Pituitary gland',c:'#eda100',f:lerp([[0,5],[10,10],[20,30],[30,55],[40,100]])},
+ {n:'Oxytocin',gl:'Pituitary gland',c:'#6250d6',f:lerp([[0,5],[30,10],[38,18],[39.5,45],[40,100]])}]}
+};
+
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+const cols=()=>isDark()?{grid:'#2c2c2a',ink:'#c3c2b7'}:{grid:'#dcd8cd',ink:'#52514e'};
+
+const credit={id:'cr',afterDraw(c){const x=c.ctx;x.save();x.font='11px system-ui,sans-serif';x.fillStyle='#898781';x.textAlign='right';x.fillText('Health Visioning, 2026',c.width-6,c.height-4);x.restore()}};
+const markers={id:'mk',afterDatasetsDraw(c){
+  const m=S[cur].mk(),a=c.chartArea,x=c.scales.x,k=cols(),ctx=c.ctx;
+  ctx.save();ctx.font='11px system-ui,sans-serif';ctx.setLineDash([3,3]);ctx.lineWidth=1;ctx.strokeStyle='#898781';ctx.fillStyle=k.ink;
+  m.forEach(([i,l])=>{const px=x.getPixelForValue(i);ctx.beginPath();ctx.moveTo(px,a.top);ctx.lineTo(px,a.bottom);ctx.stroke();
+    const r=px>a.left+(a.right-a.left)*.8;ctx.textAlign=r?'right':'left';ctx.fillText(l,px+(r?-4:4),a.top+11)});
+  ctx.restore()}};
+
+const INFO={
+'Cortisol':["The body's main stress and wake-up hormone, made by the adrenal glands.","It peaks shortly after waking and falls to its lowest around midnight.","It raises blood sugar and alertness, and helps keep inflammation in check."],
+'Melatonin':["A sleep-timing hormone released by the pineal gland in response to darkness.","Levels rise in the evening, peak in the small hours, and fade near dawn.","It signals night to the body, and bright light in the evening suppresses it."],
+'Growth hormone':["Released in pulses by the pituitary gland, mostly during deep sleep.","It drives growth in childhood and puberty, then supports muscle, bone, and repair.","Output declines steadily after the teenage years."],
+'Insulin':["Made by beta cells in the pancreas to move sugar from the blood into cells.","It rises after each meal and settles back to a low baseline between meals.","Its partner hormone, glucagon, does the opposite, releasing stored sugar when levels fall."],
+'TSH':["Thyroid-stimulating hormone is released by the pituitary gland to tell the thyroid how much to make.","It works in a feedback loop: low thyroid hormone raises TSH, and high levels lower it.","It tends to be highest at night and lowest in the afternoon."],
+'Testosterone':["The main male sex hormone, made mostly in the testes, and in smaller amounts in women.","It supports muscle, bone, and libido, and drives male puberty.","In men it peaks in the morning and in early adulthood, then declines slowly with age."],
+'Estrogen':["A group of sex hormones made mainly by the ovaries, and by the placenta in pregnancy.","It shapes puberty, the menstrual cycle, and bone and heart health.","It surges before ovulation and in late pregnancy, and drops steeply at menopause."],
+'Progesterone':["Produced by the ovaries after ovulation, and by the placenta during pregnancy.","It thickens the uterine lining and supports a pregnancy if one occurs.","When pregnancy doesn't occur, its fall triggers the next period."],
+'LH':["Luteinizing hormone is released by the pituitary gland to control the ovaries and testes.","A sharp mid-cycle surge triggers ovulation within about a day or two.","In men it steadily signals the testes to make testosterone."],
+'FSH':["Follicle-stimulating hormone is released by the pituitary gland.","It helps the ovaries mature eggs early in the cycle, and supports sperm production in men.","A smaller mid-cycle rise accompanies ovulation, and levels climb after menopause."],
+'Vitamin D':["Technically a hormone, made in the skin in sunlight and activated by the liver and kidneys.","It helps the gut absorb calcium, keeping bones and muscles strong.","Levels follow the seasons, highest in late summer and lowest in late winter."],
+'DHEA-S':["A steroid hormone made by the adrenal glands that the body converts into sex hormones.","It peaks in the mid-twenties and declines steadily afterward.","Falling levels are a normal part of ageing and a common marker of adrenal activity."],
+'hCG':["Human chorionic gonadotropin is made by the placenta soon after implantation.","It tells the ovary to keep making progesterone, and is what pregnancy tests detect.","It peaks around weeks 8 to 11, then falls to a lower, steady level."],
+'Prolactin':["A pituitary hormone best known for triggering milk production after birth.","Levels rise steadily through pregnancy as the breasts prepare to make milk.","It also plays smaller roles in metabolism and the immune system in everyone."],
+'Oxytocin':["Made in the hypothalamus and released by the pituitary gland, often called the bonding hormone.","It drives uterine contractions in labor and the milk let-down reflex in breastfeeding.","Levels rise sharply at the end of pregnancy, helping labor progress."]
+};
+function sync(){
+  const w=document.getElementById('details');w.innerHTML='';let n=0;
+  S[cur].ser().forEach((x,i)=>{
+    if(!chart.isDatasetVisible(i))return;n++;
+    const d=document.createElement('div');d.className='hd';
+    d.innerHTML='<h3><svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke="'+x.c+'" stroke-width="2"'+(D[i]?' stroke-dasharray="'+D[i]+'"':'')+'/></svg>'+x.n+'<small>'+x.gl+'</small></h3><p>'+(INFO[x.n]||[]).join('<br>')+'</p>';
+    w.appendChild(d)});
+  if(!n)w.innerHTML='<p class="hd" style="color:var(--mut);font-size:14px;margin:0">Turn on a hormone in the legend above the graph to see its explanation here.</p>';
+}
+function chips(){
+  const w=document.getElementById('chips');w.innerHTML='';
+  S[cur].ser().forEach((x,i)=>{
+    const b=document.createElement('button');b.className='chip'+(i>0?' off':'');b.setAttribute('aria-pressed',String(i===0));
+    b.innerHTML='<svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke="'+(i>0?'#888780':x.c)+'" stroke-width="2"'+(D[i]?' stroke-dasharray="'+D[i]+'"':'')+'/></svg><span>'+x.n+'</span><small>'+x.gl+'</small>';
+    b.onclick=()=>{const on=chart.isDatasetVisible(i);chart.setDatasetVisibility(i,!on);chart.update();
+      b.classList.toggle('off',on);b.setAttribute('aria-pressed',String(!on));b.querySelector('line').setAttribute('stroke',on?'#888780':x.c);sync()};
+    w.appendChild(b)});
+  sync();
+}
+
+function show(k){
+  cur=k;const s=S[k],c=cols();
+  document.querySelectorAll('#scales button').forEach(b=>b.classList.toggle('on',b.dataset.s===k));
+  document.querySelectorAll('#sexrow button').forEach(b=>b.classList.toggle('on',b.dataset.x===sex));
+  document.getElementById('sexrow').style.display=k==='life'?'flex':'none';
+  document.getElementById('desc').textContent=s.desc;
+  chart.data.labels=s.xs;
+  chart.data.datasets=s.ser().map((x,i)=>({label:x.n,gland:x.gl,data:s.raw.map(v=>Math.round(x.f(v)*10)/10),borderColor:x.c,backgroundColor:x.c,borderWidth:2,borderDash:D[i]?D[i].split(',').map(Number):[],pointRadius:0,pointHoverRadius:5,tension:.35,hidden:i>0}));
+  const o=chart.options.scales;
+  o.x.title.text=s.xt;o.x.title.color=c.ink;o.y.title.color=c.ink;o.y.grid.color=c.grid;o.x.border.color=c.grid;
+  o.x.ticks.callback=function(v,i){return s.show(i)?this.getLabelForValue(v):null};
+  chart.options.plugins.tooltip.callbacks.title=it=>s.pre+it[0].label;
+  chart.update();chips();
+}
+
+const sc=document.getElementById('scales');
+Object.keys(S).forEach(k=>{const b=document.createElement('button');b.dataset.s=k;b.textContent=S[k].label;b.onclick=()=>show(k);sc.appendChild(b)});
+document.querySelectorAll('#sexrow button').forEach(b=>b.onclick=()=>{sex=b.dataset.x;show('life')});
+
+chart=new Chart(document.getElementById('hc'),{type:'line',data:{labels:[],datasets:[]},plugins:[markers,credit],
+  options:{responsive:true,maintainAspectRatio:false,layout:{padding:{bottom:16}},interaction:{mode:'index',intersect:false},
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+' ('+c.dataset.gland+'): '+Math.round(c.parsed.y)+'%'}}},
+  scales:{x:{grid:{display:false},border:{color:'#e1e0d9'},ticks:{autoSkip:false,maxRotation:0,color:'#898781',font:{size:12}},title:{display:true,text:'',color:'#52514e',font:{size:12}}},
+  y:{min:0,max:105,grid:{color:'#e1e0d9'},border:{display:false},ticks:{stepSize:25,color:'#898781',font:{size:12},callback:v=>v>100?null:v+'%'},title:{display:true,text:'Relative level (% of own peak)',color:'#52514e',font:{size:12}}}}}});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>show(cur));
+show('day');
+</script>
+</body>
+</html>
