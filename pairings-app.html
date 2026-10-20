@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pairings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef3ec; --surface:#fbfdfa; --ink:#1c2a21; --muted:#5d6e62; --line:#d3dfd2;
+  --works:#2f7d4a; --nope:#b23a5b; --lemon:#f0cf4d; --on-works:#fff;
+  --display:"Bricolage Grotesque",Georgia,serif; --body:"Figtree",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121b15; --surface:#1a261e; --ink:#e8f1e8; --muted:#97a99b; --line:#2c3d31;
+    --works:#5fbf7c; --nope:#e0708f; --lemon:#e8c547; --on-works:#0f1a12; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121b15; --surface:#1a261e; --ink:#e8f1e8; --muted:#97a99b; --line:#2c3d31;
+  --works:#5fbf7c; --nope:#e0708f; --lemon:#e8c547; --on-works:#0f1a12; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--body)}
+main{max-width:720px;margin:0 auto;padding:20px 16px 80px}
+h1{font:800 clamp(2.6rem,10vw,4rem)/.95 var(--display);letter-spacing:-.03em;margin:12px 0 8px}
+h1 i{font-style:normal;color:var(--works);margin:0 .06em}
+.lede{color:var(--muted);margin:0 0 20px;max-width:46ch}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--lemon);outline-offset:2px}
+.bar{display:flex;gap:8px;margin-bottom:12px}
+.bar input{flex:1;min-width:0}
+input,select,textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:600;background:var(--ink);color:var(--bg)}
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:thin}
+.chip{flex:none;border:1.5px solid var(--line);background:transparent;border-radius:99px;padding:5px 12px;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.panel{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.panel h2{font:800 1.3rem var(--display);margin:0 0 12px}
+.row{display:grid;grid-template-columns:130px 1fr;gap:8px;margin-bottom:8px}
+.times{text-align:center;color:var(--muted);font:800 1.2rem var(--display);margin:2px 0 6px}
+.err{color:var(--nope);font-size:.92rem;min-height:1.3em;margin:6px 0}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.card.flash{animation:flash 1.4s}
+@keyframes flash{0%,60%{border-color:var(--lemon);box-shadow:0 0 0 4px var(--lemon)}100%{border-color:var(--line);box-shadow:none}}
+.head{display:block;width:100%;text-align:center;padding:16px 16px 10px}
+.pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:2px 10px;font:800 1.35rem/1.15 var(--display);letter-spacing:-.01em}
+.pair .x{color:var(--muted);font-weight:500}
+.tags{font-size:.8rem;color:var(--muted);margin-top:4px}
+.split{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--line);margin:10px 0 6px}
+.split span{display:block;background:var(--works);transition:width .3s}
+.split b{display:block;flex:1;background:var(--nope)}
+.stats{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+.vote{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 14px}
+.vote button{border:1.5px solid var(--line);background:transparent;border-radius:10px;padding:9px;font-weight:600}
+.vote .w[aria-pressed="true"]{background:var(--works);border-color:var(--works);color:var(--on-works)}
+.vote .n[aria-pressed="true"]{background:var(--nope);border-color:var(--nope);color:#fff}
+.more{border-top:1.5px solid var(--line);padding:14px 16px;background:color-mix(in srgb,var(--bg) 50%,var(--surface))}
+.cm{padding:8px 0;border-bottom:1px solid var(--line)}
+.cm:last-of-type{border-bottom:0}
+.cm small{color:var(--muted)}
+.cm .tried{background:var(--lemon);color:#2a2400;border-radius:6px;padding:1px 7px;font-size:.75rem;font-weight:600;margin-left:6px}
+.cm a{color:var(--works);font-weight:600;word-break:break-all}
+.cform{display:grid;gap:8px;margin-top:10px}
+.cform label.k{display:flex;gap:8px;align-items:center;font-size:.92rem}
+.cform label.k input{width:auto}
+.empty{text-align:center;color:var(--muted);padding:32px 12px}
+.ing{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+@media (prefers-reduced-motion:reduce){.split span{transition:none}.card.flash{animation:none}}
+.sync{font-size:.85rem;color:var(--muted);margin:-8px 0 14px}.sync.bad{color:var(--nope)}
+.filter{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;margin-bottom:8px}.filter label{display:grid;gap:4px;font-size:.8rem;color:var(--muted)}.filter .times{margin:0 0 10px}.count{font-size:.85rem;color:var(--muted);margin-bottom:12px}
+.dbtn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:10px;border-radius:10px;font-weight:600;color:var(--works);background:color-mix(in srgb,var(--works) 14%,var(--surface));border:1.5px solid color-mix(in srgb,var(--works) 40%,var(--surface))}.dbtn:hover{background:color-mix(in srgb,var(--works) 24%,var(--surface))}
+details.rl summary{cursor:pointer;color:var(--works);font-weight:600;font-size:.92rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Pairings<i>×</i></h1>
+  <p class="lede">Vote on what goes with what. Tap an ingredient to see everything it pairs with.</p>
+
+  <div class="sync" id="sync" role="status" hidden></div>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search an ingredient, like basil" aria-label="Search ingredients">
+    <button class="btn" id="toggleAdd">Add pairing</button>
+  </div>
+
+  <section class="panel" id="addPanel" hidden>
+    <h2>Add a pairing</h2>
+    <div class="row"><select id="ca" aria-label="First category"></select><input id="na" placeholder="First ingredient" aria-label="First ingredient"></div>
+    <div class="times" aria-hidden="true">×</div>
+    <div class="row"><select id="cb" aria-label="Second category"></select><input id="nb" placeholder="Second ingredient" aria-label="Second ingredient"></div>
+    <div class="err" id="addErr" role="alert"></div>
+    <button class="btn" id="saveAdd">Add pairing</button>
+  </section>
+
+  <div class="filter" role="group" aria-label="Show combinations between two groups">
+    <label>First group<select id="selA"></select></label>
+    <span class="times" aria-hidden="true">×</span>
+    <label>Second group<select id="selB"></select></label>
+  </div>
+  <div class="count" id="count" aria-live="polite"></div>
+  <div id="list"></div>
+</main>
+
+<script>
+const CONFIG={url:"https://dphahxtnzjmxesxqidpo.supabase.co",key:"sb_publishable_Sj2ut3Q7ClWeoM6Pe93VTw_SzZj9Hj1"};
+const CATS=["Protein","Herb","Fruit","Vegetable","Spice","Dairy","Grain"];
+const SEED=[
+["Protein","Lamb","Herb","Mint"],["Protein","Chicken","Herb","Thyme"],["Protein","Salmon","Herb","Dill"],
+["Protein","Pork","Fruit","Apple"],["Protein","Duck","Fruit","Cherry"],["Protein","Chicken","Fruit","Lemon"],
+["Protein","Beef","Herb","Rosemary"],["Protein","Shrimp","Herb","Cilantro"],["Protein","Fish","Herb","Parsley"],
+["Fruit","Peach","Herb","Basil"],["Fruit","Strawberry","Herb","Basil"],["Fruit","Watermelon","Herb","Mint"],
+["Fruit","Pear","Herb","Thyme"],["Fruit","Blueberry","Herb","Lavender"],["Fruit","Pineapple","Herb","Cilantro"],
+["Fruit","Grapefruit","Herb","Rosemary"],["Fruit","Mango","Herb","Mint"],["Fruit","Lemon","Herb","Thyme"],
+["Vegetable","Tomato","Herb","Basil"],["Vegetable","Carrot","Herb","Dill"],["Vegetable","Potato","Herb","Rosemary"],
+["Vegetable","Cucumber","Herb","Mint"],["Vegetable","Beet","Dairy","Goat cheese"],["Dairy","Feta","Fruit","Watermelon"],
+["Dairy","Ricotta","Fruit","Fig"],["Grain","Rice","Herb","Cilantro"]
+];
+const KEY="pairings-v2",remote=!!(CONFIG.url&&CONFIG.key);
+const norm=s=>s.trim().replace(/\s+/g," ");
+const side=(c,n)=>c+":"+n.toLowerCase();
+const pkey=(a,b)=>[side(a.c,a.n),side(b.c,b.n)].sort().join("|");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const score=p=>(p.w+1)/(p.w+p.x+2);
+const mk=(id,a,b)=>({id,key:pkey(a,b),a,b,w:0,x:0,comments:[]});
+const VOTER=(()=>{let v="";try{v=localStorage.getItem("pairings-voter")||""}catch(e){}
+  if(!v){v=crypto.randomUUID?crypto.randomUUID():"v"+Date.now()+Math.random().toString(36).slice(2);try{localStorage.setItem("pairings-voter",v)}catch(e){}}return v})();
+let S={pairings:[],mine:{},open:null,fa:"",fb:"",q:"",seeded:false};
+const syncEl=document.getElementById("sync");
+const setSync=(t,bad)=>{syncEl.textContent=bad?t:"";syncEl.hidden=!bad;syncEl.className="sync bad"};
+
+/* ---------- data layer ---------- */
+async function api(path,opt={}){
+  const h={apikey:CONFIG.key,"Content-Type":"application/json",...(opt.headers||{})};
+  if(!CONFIG.key.startsWith("sb_"))h.Authorization="Bearer "+CONFIG.key;
+  const r=await fetch(CONFIG.url.replace(/\/$/,"")+"/rest/v1/"+path,{...opt,headers:h});
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+function localLoad(){
+  try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d&&d.pairings){S.pairings=d.pairings;S.mine=d.mine||{};return}}catch(e){}
+  S.pairings=SEED.map((r,i)=>mk("s"+i,{c:r[0],n:r[1]},{c:r[2],n:r[3]}));
+}
+function localSave(){try{localStorage.setItem(KEY,JSON.stringify({pairings:S.pairings,mine:S.mine}))}catch(e){}}
+async function pull(){
+  const [ps,vs,cs]=await Promise.all([
+    api("pairings?select=*&order=created_at"),
+    api("votes?select=pairing_id,voter_id,vote"),
+    api("comments?select=*&order=created_at")]);
+  if(!ps.length&&!S.seeded){
+    S.seeded=true;
+    await api("pairings?on_conflict=key",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},
+      body:JSON.stringify(SEED.map(r=>({key:pkey({c:r[0],n:r[1]},{c:r[2],n:r[3]}),a_cat:r[0],a_name:r[1],b_cat:r[2],b_name:r[3]})))});
+    return pull();
+  }
+  const by={};
+  S.pairings=ps.map(p=>{const o=mk(p.id,{c:p.a_cat,n:p.a_name},{c:p.b_cat,n:p.b_name});by[p.id]=o;return o});
+  S.mine={};
+  vs.forEach(v=>{const o=by[v.pairing_id];if(!o)return;
+    if(v.vote===1)o.w++;else if(v.vote===-1)o.x++;
+    if(v.voter_id===VOTER&&v.vote)S.mine[v.pairing_id]=v.vote===1?"w":"x"});
+  cs.forEach(c=>{const o=by[c.pairing_id];if(o)o.comments.push({text:c.body,links:[c.link,c.who,c.tried]})});
+}
+async function refresh(quiet){
+  try{await pull();setSync("Shared: everyone sees the same votes. Updates every 20 seconds.")}
+  catch(e){setSync("Can’t reach the database. Showing the last data loaded.",true);return}
+  const a=document.activeElement;
+  if(!(a&&a.closest&&a.closest(".cform")))view();
+}
+
+/* ---------- view ---------- */
+function view(){
+  const q=S.q.toLowerCase();
+  const inGroups=p=>{
+    const cs=[p.a.c,p.b.c];
+    if(S.fa&&S.fb){const i=cs.indexOf(S.fa);if(i<0)return false;cs.splice(i,1);return cs[0]===S.fb}
+    if(S.fa||S.fb)return cs.includes(S.fa||S.fb);
+    return true};
+  let rows=S.pairings.filter(p=>inGroups(p)&&(!q||(p.a.n+" "+p.b.n).toLowerCase().includes(q)));
+  rows.sort((m,n)=>(score(n)*Math.log(n.w+n.x+2))-(score(m)*Math.log(m.w+m.x+2)));
+  const lbl=S.fa&&S.fb?S.fa+" × "+S.fb:(S.fa||S.fb||"");
+  document.getElementById("count").textContent=rows.length+(rows.length===1?" pairing":" pairings")+(lbl?" for "+lbl:"");
+  document.getElementById("list").innerHTML=rows.length?rows.map(card).join(""):'<div class="empty">No pairings match yet. Use Add pairing to start this one.</div>';
+}
+function card(p){
+  const tot=p.w+p.x,pct=tot?Math.round(p.w/tot*100):0,mine=S.mine[p.id],open=S.open===p.id;
+  const ing=o=>`<button class="ing" data-act="ing" data-n="${esc(o.n)}">${esc(o.n)}</button>`;
+  return `<article class="card" id="c-${p.id}">
+  <div class="head">
+    <div class="pair">${ing(p.a)}<span class="x">×</span>${ing(p.b)}</div>
+    <div class="tags">${esc(p.a.c)} and ${esc(p.b.c)}</div>
+    <div class="split" role="img" aria-label="${tot?pct+"% say it works":"No votes yet"}"><span style="width:${pct}%"></span><b></b></div>
+    <div class="stats"><span>${tot?pct+"% works":"No votes yet"}</span><span>${tot} votes · ${p.comments.length} comments</span></div>
+  </div>
+  <div class="vote">
+    <button class="w" data-act="vote" data-id="${p.id}" data-v="w" aria-pressed="${mine==="w"}">Works</button>
+    <button class="n" data-act="vote" data-id="${p.id}" data-v="x" aria-pressed="${mine==="x"}">Doesn’t work</button>
+  </div>
+  <button class="dbtn" data-act="open" data-id="${p.id}" aria-expanded="${open}">${open?"Hide details":"View details"}</button>${open?more(p):""}</article>`;
+}
+const okUrl=u=>typeof u==="string"&&/^https?:\/\//i.test(u);
+function links(c){
+  const a=(c.links||[c.link]).filter(okUrl).map(u=>{let h=u;try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){}
+    return `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(h)}</a>`});
+  return a.length?`<div>${a.join(" · ")}</div>`:"";
+}
+function more(p){
+  const cs=p.comments.length?p.comments.map(c=>`<div class="cm"><div>${esc(c.text)}</div>${links(c)}</div>`).join("")
+    :'<div class="empty" style="padding:8px 0">No comments yet. Share how you used it.</div>';
+  return `<div class="more">${cs}
+  <div class="cform" data-id="${p.id}">
+    <textarea class="ct" rows="2" placeholder="How did you use it?" aria-label="Comment" maxlength="1000"></textarea>
+    <details class="rl"><summary>Add recipe links</summary>
+      <input class="cl" type="url" placeholder="Recipe link" aria-label="Recipe link" style="margin-top:8px">
+      <input class="cl" type="url" placeholder="Second link (optional)" aria-label="Second link" style="margin-top:8px">
+      <input class="cl" type="url" placeholder="Third link (optional)" aria-label="Third link" style="margin-top:8px"></details>
+    <div class="err cerr" role="alert"></div>
+    <button class="btn" data-act="comment" data-id="${p.id}">Post comment</button>
+  </div></div>`;
+}
+
+/* ---------- actions ---------- */
+async function doVote(id,v){
+  const p=S.pairings.find(x=>x.id===id),cur=S.mine[id];
+  if(cur)p[cur]--;
+  if(cur===v)delete S.mine[id];else{p[v]++;S.mine[id]=v}
+  view();
+  if(!remote){localSave();return}
+  try{await api("votes?on_conflict=pairing_id,voter_id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+    body:JSON.stringify({pairing_id:id,voter_id:VOTER,vote:S.mine[id]==="w"?1:S.mine[id]==="x"?-1:0})})}
+  catch(e){setSync("Your vote didn’t save. Check your connection.",true);refresh()}
+}
+async function doComment(f){
+  const id=f.dataset.id,err=f.querySelector(".cerr");
+  const text=norm(f.querySelector(".ct").value),links=[...f.querySelectorAll(".cl")].map(i=>i.value.trim()),[link,l2,l3]=links;
+  if(!text){err.textContent="Write a comment before posting.";return}
+  if(links.some(u=>u&&!okUrl(u))){err.textContent="Start each link with http:// or https://";return}
+  if(!remote){S.pairings.find(x=>x.id===id).comments.push({text,links});localSave();view();return}
+  try{await api("comments",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({pairing_id:id,body:text,link:link||null,who:l2||null,tried:l3||null})});await pull();view()}
+  catch(e){err.textContent="Comment didn’t save. Check your connection and try again."}
+}
+function reveal(id){
+  S.fa=S.fb="";selA.value=selB.value="";S.q="";document.getElementById("q").value="";
+  S.open=id;view();
+  const el=document.getElementById("c-"+id);if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("flash")}
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-act]");if(!t)return;
+  const act=t.dataset.act;
+  if(act==="ing"){e.stopPropagation();document.getElementById("q").value=t.dataset.n;S.q=t.dataset.n;view();window.scrollTo({top:0,behavior:"smooth"})}
+  if(act==="open"){S.open=S.open===t.dataset.id?null:t.dataset.id;view()}
+  if(act==="vote")doVote(t.dataset.id,t.dataset.v);
+  if(act==="comment")doComment(t.closest(".cform"));
+});
+
+const selA=document.getElementById("selA"),selB=document.getElementById("selB");
+selA.innerHTML=selB.innerHTML='<option value="">Any</option>'+CATS.map(c=>`<option>${c}</option>`).join("");
+selA.onchange=()=>{S.fa=selA.value;view()};
+selB.onchange=()=>{S.fb=selB.value;view()};
+document.getElementById("q").addEventListener("input",e=>{S.q=e.target.value;view()});
+
+const ca=document.getElementById("ca"),cb=document.getElementById("cb");
+ca.innerHTML=cb.innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");cb.value="Herb";
+const addPanel=document.getElementById("addPanel");
+document.getElementById("toggleAdd").onclick=()=>{addPanel.hidden=!addPanel.hidden;if(!addPanel.hidden)document.getElementById("na").focus()};
+document.getElementById("saveAdd").onclick=async()=>{
+  const err=document.getElementById("addErr"),na=document.getElementById("na"),nb=document.getElementById("nb");
+  const a={c:ca.value,n:norm(na.value)},b={c:cb.value,n:norm(nb.value)};
+  if(!a.n||!b.n){err.textContent="Enter both ingredients.";return}
+  if(side(a.c,a.n)===side(b.c,b.n)){err.textContent="Pick two different ingredients.";return}
+  const k=pkey(a,b),done=()=>{err.textContent="";addPanel.hidden=true;na.value=nb.value=""};
+  if(remote){try{await pull()}catch(e){}}
+  let hit=S.pairings.find(p=>p.key===k);
+  if(hit){done();reveal(hit.id);return}
+  if(!remote){hit=mk("u"+Date.now(),a,b);S.pairings.push(hit);localSave();done();reveal(hit.id);return}
+  try{
+    // The database enforces uniqueness on the order-independent key, so a simultaneous duplicate is ignored.
+    await api("pairings?on_conflict=key",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},
+      body:JSON.stringify({key:k,a_cat:a.c,a_name:a.n,b_cat:b.c,b_name:b.n})});
+    await pull();hit=S.pairings.find(p=>p.key===k);done();if(hit)reveal(hit.id)
+  }catch(e){err.textContent="Couldn’t add the pairing. Check your connection and try again."}
+};
+
+if(remote){setSync("Connecting…");refresh();setInterval(()=>{if(!document.hidden)refresh()},20000)}
+else{localLoad();view();setSync("Not connected to a database, so votes stay in this browser. Add your Supabase details in CONFIG to share them.")}
+</script>
+</body>
+</html>
