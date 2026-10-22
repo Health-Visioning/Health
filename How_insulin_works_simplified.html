@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How insulin works, simplified</title>
+<style>
+:root{--bg:#F2F6F8;--card:#FFFFFF;--ink:#16242C;--muted:#51636D;--line:#D3DEE4;--sugar:#E8A21B;--key:#6B4FD3;--cell:#CFEDE6;--cellline:#1B8E78;--blood:#F8D9D3;--bloodline:#C9533D;--panc:#F4D2E0;--pancline:#B24475;--btn:#16242C;--btntext:#FFFFFF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181D;--card:#182329;--ink:#EAF1F4;--muted:#A3B4BC;--line:#2B3A42;--sugar:#F2B63E;--key:#A594F5;--cell:#12433A;--cellline:#4FC9AE;--blood:#4A231C;--bloodline:#F08A74;--panc:#4A2235;--pancline:#E88AB1;--btn:#EAF1F4;--btntext:#10181D}}
+:root[data-theme="dark"]{--bg:#10181D;--card:#182329;--ink:#EAF1F4;--muted:#A3B4BC;--line:#2B3A42;--sugar:#F2B63E;--key:#A594F5;--cell:#12433A;--cellline:#4FC9AE;--blood:#4A231C;--bloodline:#F08A74;--panc:#4A2235;--pancline:#E88AB1;--btn:#EAF1F4;--btntext:#10181D}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+main{max-width:760px;margin:0 auto;padding:28px 18px 48px}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.15;margin:0 0 10px;font-weight:700}
+.lead{font-size:1.1rem;color:var(--muted);margin:0 0 22px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px}
+.legend span{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 10px;font-size:.95rem}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--sugar);display:inline-block}
+.keyi{width:18px;height:10px;display:inline-block;position:relative}
+.keyi:before{content:"";position:absolute;left:0;top:0;width:10px;height:10px;border-radius:50%;background:var(--key)}
+.keyi:after{content:"";position:absolute;left:9px;top:3px;width:9px;height:4px;background:var(--key)}
+.doori{width:10px;height:16px;border-radius:2px;background:var(--cellline);display:inline-block}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 8px 6px}
+svg{display:block;width:100%;height:auto}
+.lbl{font:600 15px system-ui,sans-serif;fill:var(--ink)}
+.sub{font:13px system-ui,sans-serif;fill:var(--muted)}
+.sugar{fill:var(--sugar);transition:opacity .7s,transform .9s}
+.sugar.blood{opacity:0}
+.sugar.inside{opacity:0}
+.key{fill:var(--key);opacity:0;transform:translateX(var(--from));transition:opacity .6s,transform 1.1s}
+.door{fill:var(--cellline);transform-box:fill-box;transform-origin:center;transition:transform .7s,opacity .7s}
+[data-step="1"] .sugar.blood,[data-step="2"] .sugar.blood,[data-step="3"] .sugar.blood{opacity:1}
+[data-step="2"] .key,[data-step="3"] .key{opacity:1;transform:translateX(0)}
+[data-step="3"] .key{transform:translateX(var(--to));opacity:0}
+[data-step="3"] .sugar.blood{opacity:.2}
+[data-step="3"] .sugar.inside{opacity:1}
+[data-step="3"] .door{transform:scaleY(.15);opacity:.5}
+.key.extra{display:none}
+[data-mode="r"] .key.extra{display:inline}
+[data-mode="r"][data-step="3"] .key{opacity:1;transform:translateX(var(--stuck))}
+[data-mode="r"][data-step="3"] .sugar.blood{opacity:1}
+[data-mode="r"][data-step="3"] .sugar.inside{opacity:0}
+[data-mode="r"][data-step="3"] .sugar.inside.one{opacity:1}
+[data-mode="r"][data-step="3"] .door{transform:scaleY(.85);opacity:1}
+.seg{display:inline-flex;gap:4px;border:1px solid var(--line);border-radius:999px;padding:4px;background:var(--card);margin:0 0 14px}
+.seg button{padding:8px 16px;background:transparent;color:var(--ink)}
+.seg button.on{background:var(--btn);color:var(--btntext)}
+.sugar{transform-box:fill-box;transform-origin:center}
+.tube{transition:fill .7s}
+.pk,.tired,.warn{transition:opacity .6s}
+.tired,.warn{opacity:0}
+.pips i.p5{display:none}
+[data-mode="r"] .pips i.p5{display:block}
+[data-mode="r"][data-step="4"] .key{opacity:1;transform:translateX(var(--stuck))}
+[data-mode="r"][data-step="4"] .sugar.blood{opacity:1}
+[data-mode="r"][data-step="4"] .sugar.inside.one{opacity:1}
+[data-mode="r"][data-step="4"] .door{transform:scaleY(.85);opacity:1}
+[data-mode="r"][data-step="4"] .tube{fill:var(--bloodline);fill-opacity:.45}
+[data-mode="r"][data-step="4"] .pk{opacity:0}
+[data-mode="r"][data-step="4"] .tired,[data-mode="r"][data-step="4"] .warn{opacity:1}
+@media (prefers-reduced-motion:no-preference){@keyframes pulse{50%{transform:scale(1.3)}}[data-mode="r"][data-step="4"] .sugar.blood{animation:pulse 1.6s ease-in-out infinite}}
+.fx{display:none;grid-template-columns:1fr 1fr;gap:12px;padding:12px 6px 0}
+[data-mode="r"][data-step="4"] .fx{display:grid}
+.fx div{background:var(--bg);border:1px solid var(--line);border-top:5px solid var(--sugar);border-radius:12px;padding:12px 14px}
+.fx h4{margin:0 0 8px;font-size:1rem}
+.fx ul{margin:0;padding-left:1.1rem;font-size:.95rem;color:var(--muted)}
+.fx li{margin:0 0 5px}
+.fx li b{color:var(--ink);font-weight:600}
+.fx .i{border-top-color:var(--key)}
+@media (max-width:560px){.fx{grid-template-columns:1fr}}
+.foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:.95rem}
+@media (prefers-reduced-motion:no-preference){[data-mode="r"][data-step="4"] .sugar.bl{animation:pulse 1.6s ease-in-out infinite}}
+.caption{padding:16px 6px 8px}
+.caption h2{font-size:1.25rem;margin:0 0 4px}
+.caption p{margin:0;font-size:1.05rem;color:var(--muted);min-height:3.2em}
+.controls{display:flex;align-items:center;gap:12px;margin-top:10px}
+button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:10px 22px;background:var(--btn);color:var(--btntext);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible{outline:3px solid var(--key);outline-offset:2px}
+button[disabled]{opacity:.35;cursor:default}
+.pips{display:flex;gap:8px;margin-left:auto}
+.pips i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.pips i.on{background:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+.two div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.two h3{margin:0 0 6px;font-size:1.05rem}
+.two p{margin:0;color:var(--muted);font-size:.98rem}
+.risks{margin-top:32px}
+.risks h2{font-size:1.4rem;margin:0 0 6px}
+.risks .intro{color:var(--muted);margin:0 0 14px}
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.risk{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--sugar);border-radius:14px;padding:16px}
+.risk.ins{border-top-color:var(--key)}
+.risk h3{margin:0 0 10px;font-size:1.1rem}
+.risk ul{margin:0;padding-left:1.1rem;color:var(--muted)}
+.risk li{margin:0 0 8px}
+.risk li b{color:var(--ink);font-weight:600}
+.note{font-size:.9rem;color:var(--muted);margin-top:14px}
+@media (max-width:560px){.two,.risk-grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>How insulin works, simplified</h1>
+<p class="lead">Think of insulin as a key. Your cells are locked doors, and sugar is the fuel waiting outside.</p>
+
+<div class="legend" aria-label="Legend">
+<span><i class="dot"></i>Sugar (fuel)</span>
+<span><i class="keyi"></i>Insulin (key)</span>
+<span><i class="doori"></i>Door on a cell</span>
+</div>
+
+<div class="seg" role="group" aria-label="Choose a scenario"><button id="mh" class="on" aria-pressed="true">Healthy cells</button><button id="mr" aria-pressed="false">Insulin resistance</button></div>
+
+<div class="stage" id="stage" data-step="0" data-mode="h">
+<svg viewBox="0 0 680 290" role="img" aria-label="Animated scene: sugar in the blood, insulin keys leaving the pancreas, and doors opening on a body cell">
+<ellipse cx="85" cy="150" rx="70" ry="42" fill="var(--panc)" stroke="var(--pancline)" stroke-width="2"/>
+<text class="lbl" x="85" y="220" text-anchor="middle">Pancreas</text>
+<text class="sub pk" x="85" y="238" text-anchor="middle">The key maker</text>
+<text class="sub tired" x="85" y="238" text-anchor="middle">Overworked</text>
+
+<rect class="tube" x="150" y="122" width="360" height="56" rx="28" fill="var(--blood)" stroke="var(--bloodline)" stroke-width="2"/>
+<text class="lbl" x="330" y="205" text-anchor="middle">Blood</text>
+<text class="sub" x="330" y="223" text-anchor="middle">The delivery road</text>
+
+<rect x="530" y="50" width="130" height="200" rx="44" fill="var(--cell)" stroke="var(--cellline)" stroke-width="2"/>
+<text class="lbl" x="595" y="274" text-anchor="middle">Body cell</text>
+<rect class="door" x="522" y="86" width="14" height="40" rx="3"/>
+<rect class="door" x="522" y="136" width="14" height="40" rx="3"/>
+<rect class="door" x="522" y="186" width="14" height="40" rx="3"/>
+
+<g id="sugarg"></g>
+
+
+
+
+
+
+
+
+
+<g class="key" style="--from:-190px;--to:170px;--stuck:80px"><circle cx="300" cy="162" r="7"/><rect x="305" y="160" width="13" height="4"/></g>
+<g class="key" style="--from:-250px;--to:110px;--stuck:50px"><circle cx="360" cy="162" r="7"/><rect x="365" y="160" width="13" height="4"/></g>
+<g class="key" style="--from:-310px;--to:50px;--stuck:20px"><circle cx="420" cy="162" r="7"/><rect x="425" y="160" width="13" height="4"/></g>
+<g class="key extra" style="--from:-110px;--stuck:230px"><circle cx="240" cy="162" r="7"/><rect x="245" y="160" width="13" height="4"/></g>
+<g class="key extra" style="--from:-350px;--stuck:20px"><circle cx="480" cy="162" r="7"/><rect x="485" y="160" width="13" height="4"/></g>
+<g class="warn"><circle cx="330" cy="122" r="12" fill="var(--bloodline)"/><text x="330" y="127" text-anchor="middle" style="font:700 14px system-ui,sans-serif" fill="var(--card)">!</text></g>
+<g class="warn"><circle cx="595" cy="50" r="12" fill="var(--bloodline)"/><text x="595" y="55" text-anchor="middle" style="font:700 14px system-ui,sans-serif" fill="var(--card)">!</text></g>
+<g class="warn"><circle cx="85" cy="108" r="12" fill="var(--bloodline)"/><text x="85" y="113" text-anchor="middle" style="font:700 14px system-ui,sans-serif" fill="var(--card)">!</text></g>
+</svg>
+<div class="fx"><div class="s"><h4>From high sugar in the blood</h4><ul><li><b>Eyes:</b> blurry vision</li><li><b>Kidneys:</b> filters wear out</li><li><b>Nerves:</b> numb or tingling feet</li><li><b>Heart:</b> higher risk of heart attack and stroke</li></ul></div><div class="i"><h4>From high insulin</h4><ul><li><b>Weight:</b> more fat stored around the belly</li><li><b>Blood pressure:</b> salt and water build up</li><li><b>Hunger:</b> cravings and energy crashes</li><li><b>Liver:</b> fat builds up</li></ul></div></div>
+
+<div class="caption" aria-live="polite">
+<h2 id="t">Ready?</h2>
+<p id="d">Press Next to follow what happens after you eat.</p>
+</div>
+<div class="controls">
+<button class="ghost" id="back" disabled>Back</button>
+<button id="next">Next</button>
+<div class="pips" id="pips"><i class="on"></i><i></i><i></i><i></i><i class="p5"></i></div>
+</div>
+</div>
+
+<div class="two">
+<div><h3>Type 1 diabetes</h3><p>The pancreas can’t make the keys. Doctors replace them with insulin injections or a pump.</p></div>
+<div><h3>Type 2 diabetes</h3><p>Keys exist, but the locks have gotten stiff. The pancreas makes more keys, and eventually it can’t keep up.</p></div>
+</div>
+<section class="risks">
+<h2>What goes wrong when it keeps happening</h2>
+<p class="intro">When insulin resistance lasts for years, both extra sugar and extra insulin in the blood take a toll.</p>
+<div class="risk-grid">
+<div class="risk">
+<h3>Too much sugar in the blood</h3>
+<ul>
+<li><b>Eyes:</b> tiny blood vessels get damaged, which can blur or cloud vision.</li>
+<li><b>Kidneys:</b> the filters get overworked and can slowly fail.</li>
+<li><b>Nerves:</b> tingling or numbness, often starting in the feet.</li>
+<li><b>Heart and arteries:</b> higher risk of heart attack and stroke.</li>
+<li><b>Healing:</b> cuts heal slowly and infections are more likely.</li>
+</ul>
+</div>
+<div class="risk ins">
+<h3>Too much insulin</h3>
+<ul>
+<li><b>Weight gain:</b> insulin tells the body to store fat, especially around the belly.</li>
+<li><b>Hunger and crashes:</b> sugar swings bring cravings and tiredness.</li>
+<li><b>Blood pressure:</b> the body can hold on to extra salt and water, pushing pressure up.</li>
+<li><b>Fatty liver:</b> more fat builds up in the liver and in the blood.</li>
+<li><b>Skin:</b> dark, velvety patches on the neck or armpits are a common sign.</li>
+</ul>
+</div>
+</div>
+<p class="note">These effects build up slowly, and early on many people feel fine, which is why regular blood tests matter. This page is general information, not medical advice.</p>
+</section>
+<footer class="foot">Health Visioning, 2026</footer>
+</main>
+<script>
+var steps=[
+["Ready?","Press Next to follow what happens after you eat."],
+["You eat, and sugar enters your blood","Food is broken down into sugar, which floats around in your blood. It can’t get into your cells by itself."],
+["Your pancreas sends out keys","It notices the extra sugar and releases insulin into the blood. Each insulin molecule works like a key."],
+["The keys open the doors","Doors on your cells swing open, sugar moves inside to be used as energy, and your blood sugar comes back down."]
+];
+var stepsR=[
+["Ready?","Press Next to see what goes wrong when cells stop responding to insulin."],
+["You eat, and sugar enters your blood","Same start as before: food becomes sugar in your blood."],
+["The pancreas sends extra keys","The doors have gotten stiff, so the pancreas compensates by making far more keys than normal."],
+["The keys barely work","Doors only crack open, so little sugar gets in and blood sugar stays high. Over the years, the overworked pancreas can wear out."],
+["The damage builds up","Years of high sugar and high insulin strain the body. The boxes under the picture show what can go wrong."]
+];
+var mode="h",s=0,stage=document.getElementById("stage"),t=document.getElementById("t"),d=document.getElementById("d"),
+back=document.getElementById("back"),next=document.getElementById("next"),pips=document.querySelectorAll("#pips i");
+function show(){
+if(s===0||(ps>=3&&s<3))resetSugar();ps=s;stage.setAttribute("data-step",s);
+var a=mode==="r"?stepsR:steps;t.textContent=a[s][0];d.textContent=a[s][1];
+back.disabled=s===0;
+next.textContent=s===(mode==="r"?4:3)?"Start over":"Next";
+for(var i=0;i<pips.length;i++){pips[i].classList.toggle("on",i===s)}
+if(reduce)snap();
+}
+next.onclick=function(){var mx=mode==="r"?4:3;s=s===mx?0:s+1;show()};
+back.onclick=function(){if(s>0){s--;show()}};
+var mh=document.getElementById("mh"),mr=document.getElementById("mr");
+function setMode(m){mode=m;s=0;stage.setAttribute("data-mode",m);mh.className=m==="h"?"on":"";mr.className=m==="r"?"on":"";mh.setAttribute("aria-pressed",m==="h");mr.setAttribute("aria-pressed",m==="r");show()}
+mh.onclick=function(){setMode("h")};
+mr.onclick=function(){setMode("r")};
+var ps=-1,G=document.getElementById("sugarg"),NS="http://www.w3.org/2000/svg",P=[],T0=0;
+var SL=[[565,105],[612,105],[565,150],[612,150],[565,195],[612,195]];
+var reduce=false;
+for(var k=0;k<9;k++){var c=document.createElementNS(NS,"circle");c.setAttribute("r","8");c.setAttribute("class","sugar bl");G.appendChild(c);P.push({el:c,x:0,y:141,vx:0,st:0,sl:-1,ph:Math.random()*6.28})}
+function resetSugar(){for(var k=0;k<P.length;k++){var p=P[k];p.st=0;p.sl=-1;p.x=185+k*35+Math.random()*8;p.vx=35+Math.random()*25;p.el.classList.add("bl")}}
+function snap(){var m=mode==="r"?1:6;for(var k=0;k<P.length;k++){var p=P[k];if(s>=3&&k<m){p.st=2;p.sl=k;p.x=SL[k][0];p.y=SL[k][1]}else{p.st=0;p.sl=-1;p.x=185+k*35;p.y=141+(k%2)*8}p.el.classList.toggle("bl",p.st!==2);p.el.style.opacity=s>=1?1:0;p.el.setAttribute("cx",p.x);p.el.setAttribute("cy",p.y)}}
+function slotFree(){var u={},n=0;for(var k=0;k<P.length;k++){if(P[k].sl>=0){u[P[k].sl]=1;n++}}var m=mode==="r"?1:6;if(n>=m)return -1;for(var j=0;j<SL.length;j++){if(!u[j])return j}return -1}
+function frame(ts){
+var dt=Math.min((ts-T0)/1000||0.016,0.05),t=ts/1000;T0=ts;
+for(var k=0;k<P.length;k++){var p=P[k];p.el.style.opacity=s>=1?1:0;
+if(s>=1&&p.st===0){
+p.vx+=(45-p.vx)*0.8*dt;p.x+=p.vx*dt;
+if(p.x<172){p.x=172;p.vx=Math.abs(p.vx)}
+if(p.x>504){var j=s>=3?slotFree():-1;
+if(j>=0&&Math.random()<(mode==="r"?0.06:0.9)){p.st=1;p.sl=j;p.el.classList.remove("bl")}
+else{p.x=504-Math.random()*12;p.vx=-(25+Math.random()*35)}}
+p.y=141+Math.sin(t*2.2+p.ph)*6;
+}else if(p.st===1){
+var g=SL[p.sl];p.x+=(g[0]-p.x)*3*dt;p.y+=(g[1]-p.y)*3*dt;
+if(Math.abs(g[0]-p.x)<3&&Math.abs(g[1]-p.y)<3)p.st=2;
+}else if(p.st===2){
+var h=SL[p.sl];p.x=h[0]+Math.sin(t*1.6+p.ph)*4;p.y=h[1]+Math.cos(t*1.9+p.ph)*4;
+}
+p.el.setAttribute("cx",p.x);p.el.setAttribute("cy",p.y);
+}
+if(reduce){running=false;return}
+requestAnimationFrame(frame);
+}
+var running=false;
+function startLoop(){if(!running){running=true;requestAnimationFrame(frame)}}
+
+
+
+resetSugar();snap();
+startLoop();
+</script>
+</body>
+</html>
