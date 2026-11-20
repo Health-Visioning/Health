@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How your immune system works</title>
+<style>
+:root{--bg:#F5F7FA;--card:#fff;--ink:#17232E;--mute:#5B6B79;--line:#D5DCE4;--ib:#DDF3EF;--ic:#0E8F7E;--ab:#E8E5FA;--ac:#5B4BC4;--pb:#FBE4E1;--pi:#8C2218;--gb:#E2F3E0;--gi:#1D5A24;--nb:#E9EDF2}
+@media(prefers-color-scheme:dark){:root{--bg:#0F1720;--card:#17212C;--ink:#E7EEF5;--mute:#9AA9B7;--line:#2C3A48;--ib:#12403A;--ic:#3CC1AB;--ab:#2A2560;--ac:#9488F0;--pb:#4A1D18;--pi:#F5B5AC;--gb:#1B3A1F;--gi:#A9DFA9;--nb:#243140}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 48px}
+h1{font:500 clamp(28px,6vw,40px)/1.15 Georgia,"Iowan Old Style",serif;margin:0 0 8px}
+.sub{color:var(--mute);margin:0 0 18px;max-width:60ch}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tab{flex:1 1 110px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-size:14px;line-height:1.3}
+.tab b{display:block;font-size:12px;color:var(--mute);font-weight:500}
+.tab.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab.on b{color:var(--bg);opacity:.75}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.side{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.who{margin:0;font-size:13px;color:var(--mute)}.who b{color:var(--ink);font-weight:500}.pill{display:inline-block;border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:0 8px;font-size:12px;margin-left:4px}
+.side h2{font:500 22px/1.25 Georgia,serif;margin:2px 0 6px}
+.side p.tx{margin:0 0 12px;color:var(--mute);font-size:15px}
+.stage{background:var(--bg);border-radius:12px;padding:6px;cursor:pointer}#sl{background:color-mix(in srgb,var(--pb) 40%,var(--bg))}#sr{background:color-mix(in srgb,var(--gb) 45%,var(--bg))}
+.stage svg{display:block;width:100%;height:auto}
+.stage text{font-size:11px;fill:var(--ink)}
+.kp,.kq{color:var(--pi);--f:var(--pb)}.ki{color:var(--ic);--f:var(--ib)}.ka,.kz{color:var(--ac);--f:var(--ab)}.kg{color:var(--gi);--f:var(--gb)}.kn,.kw,.kh{color:var(--mute);--f:var(--nb)}.ky{color:var(--ac)}.km{color:var(--gi)}
+.b{fill:var(--f);stroke:currentColor;stroke-width:2}
+.nu{fill:currentColor}
+.in{animation:bob 2.6s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-3px)}}.rot{animation:spin 7s linear infinite;transform-origin:0 0}@keyframes spin{to{transform:rotate(360deg)}}
+.calm .in,.calm .rot{animation:none}.nav label{font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;cursor:pointer}
+.lg{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--mute);margin:14px 0 0}
+.lg span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px}
+.nav{display:flex;gap:8px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.nav button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 16px}
+.nav #next{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.nav button:disabled{opacity:.4;cursor:default}
+.nav .st{margin-left:auto;font-size:13px;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<h1>How your immune system works</h1>
+<p class="sub">Step through nine stages of an immune response. The left side shows the real biology. The right side is a country analogy, a nation defending itself, to make each stage easier to picture.</p>
+<nav class="tabs" id="tabs" aria-label="Stages"></nav>
+<div class="pair" aria-live="polite">
+<section class="side"><p class="who"><b>In the body</b> &middot; the real biology</p><h2 id="bt"></h2><p class="tx" id="bx"></p><div class="stage" id="sl" title="Tap to replay"></div></section>
+<section class="side"><p class="who"><b>Country analogy</b> &middot; a nation defending itself <span class="pill">Analogy</span></p><h2 id="at"></h2><p class="tx" id="ax"></p><div class="stage" id="sr" title="Tap to replay"></div></section>
+</div>
+<div class="lg"><span style="--c:var(--pi)">Pathogen or invader</span><span style="--c:var(--ic)">First responder</span><span style="--c:var(--ac)">Specialist or antibody</span><span style="--c:var(--gi)">Protected or remembered</span></div>
+<div class="nav"><button id="prev">Back</button><button id="next">Next stage</button><button id="rep">Replay</button><button id="rst">Restart</button><label><input type="checkbox" id="rm"> Reduce motion</label><span class="st">Tap a diagram to replay it</span></div>
+</main>
+<script>
+var S=[
+{n:"Barriers",bt:"Skin and mucus block entry",bx:"Tightly packed skin cells, sticky mucus, stomach acid and friendly bacteria stop most microbes before they get in.",at:"Walls and checkpoints turn invaders back",ax:"Border walls, checkpoints and guards turn most intruders away, and friendly neighbors leave no room for invaders to settle.",
+b:"w 0 90 0 90 0 - Skin_and_mucus;p 60 25 60 74 0 b Blocked;p 180 25 180 74 500 b -;p 300 25 290 76 1000 s Swept_out;g 120 150 120 150 0 - Friendly_bacteria;g 240 150 240 150 0 - -",
+a:"w 0 90 0 90 0 - Border_wall_and_checkpoints;p 60 25 60 74 0 b Turned_back;p 180 25 180 74 500 b -;p 300 25 290 76 1000 s Expelled;i 120 150 120 150 0 - Border_guards;i 240 150 240 150 0 - -"},
+{n:"First responders",bt:"Phagocytes and inflammation",bx:"Macrophages and neutrophils engulf and digest microbes that get through, and inflammation signals call in more of them.",at:"Police and army respond",ax:"Local police and the army surround and capture intruders at once, and alarms bring reinforcements within minutes.",
+b:"i 50 60 160 60 0 k Macrophage_engulfs_microbe;p 285 60 163 60 0 e -;i 50 140 160 140 800 k Neutrophil_engulfs_microbe;p 285 140 163 140 800 e -",
+a:"i 50 60 160 60 0 k Police_surround_invader;p 285 60 163 60 0 e -;i 50 140 160 140 800 k Army_captures_invader;p 285 140 163 140 800 e -"},
+{n:"Capture antigen",bt:"Dendritic cells capture the antigen",bx:"A dendritic cell engulfs a microbe at the infection site, breaks it down, and displays a fragment of it, an antigen, on its surface.",at:"A scout captures intelligence",ax:"An intelligence scout captures an intruder and takes a marker from it as proof of what the enemy looks like.",
+b:"i 150 100 150 100 0 k Dendritic_cell;p 300 100 153 100 0 e -;q 150 84 150 84 2200 u -",
+a:"i 150 100 150 100 0 k Intelligence_scout;p 300 100 153 100 0 e -;q 150 84 150 84 2200 u -"},
+{n:"Lymph node",bt:"The antigen travels to a lymph node",bx:"The dendritic cell travels through lymph vessels to a lymph node, a meeting place where many T cells wait to be shown antigens.",at:"The scout reports to headquarters",ax:"The scout travels back to command headquarters, where many specialist units wait for briefings.",
+b:"h 290 85 290 85 0 - Lymph_node;a 272 72 272 72 0 - -;a 308 72 308 72 0 - -;a 290 100 290 100 0 - -;i 40 60 225 85 0 - Dendritic_cell;q 40 44 225 69 0 - -",
+a:"h 290 85 290 85 0 - Command_HQ;a 272 72 272 72 0 - -;a 308 72 308 72 0 - -;a 290 100 290 100 0 - -;i 40 60 225 85 0 - Scout;q 40 44 225 69 0 - -"},
+{n:"Find the match",bt:"Finding the T cell that fits",bx:"The dendritic cell shows its antigen to many T cells. Only the one whose receptor fits that exact antigen is activated.",at:"Finding the unit that fits",ax:"The scout briefs unit after unit. Only the unit trained for this exact enemy accepts the mission.",
+b:"i 50 95 50 95 0 - Dendritic_cell;q 66 95 66 95 0 - -;a 300 50 150 50 0 b No_fit;a 300 140 150 140 700 b No_fit;a 300 95 100 95 1400 k -;m 83 95 83 95 2400 f Receptor_fits",
+a:"i 50 95 50 95 0 - Scout;q 66 95 66 95 0 - -;a 300 50 150 50 0 b Wrong_unit;a 300 140 150 140 700 b Wrong_unit;a 300 95 100 95 1400 k -;m 83 95 83 95 2400 f Unit_matches"},
+{n:"Multiply",bt:"Helper T cells activate and multiply",bx:"A helper T cell gives the matching T cell the go-ahead. It then divides into thousands of identical copies, all aimed at the same antigen.",at:"Command mobilizes the right unit",ax:"Command authorizes the matching unit, which then trains thousands of identical recruits, all prepared for this one enemy.",
+b:"a 50 45 50 45 0 - Helper_T_cell;z 66 50 164 88 0 d -;z 66 50 164 92 500 d -;z 66 50 164 90 1000 d -;a 180 95 180 95 0 k Activated_T_cell;a 180 95 90 95 1800 u -;a 180 95 270 95 1800 u -;a 180 95 135 50 2000 u -;a 180 95 225 50 2000 u -;a 180 95 135 140 2200 u -;a 180 95 225 140 2200 u -",
+a:"a 50 45 50 45 0 - Commander;z 66 50 164 88 0 d -;z 66 50 164 92 500 d -;z 66 50 164 90 1000 d -;a 180 95 180 95 0 k Unit_mobilized;a 180 95 90 95 1800 u -;a 180 95 270 95 1800 u -;a 180 95 135 50 2000 u -;a 180 95 225 50 2000 u -;a 180 95 135 140 2200 u -;a 180 95 225 140 2200 u -"},
+{n:"Killer T cells",bt:"Killer T cells match and kill",bx:"A killer T cell checks the antigen on a cell's surface. When its receptor fits, it triggers the infected cell to self-destruct. Healthy cells show no matching antigen, so they are left alone.",at:"Special forces strike confirmed targets",ax:"Special forces check each target's marker against their orders. Only a match is attacked, and friendly towns are left untouched.",
+b:"n 305 60 305 60 1800 d Infected_cell;q 289 60 289 60 1800 d -;a 40 60 255 60 0 k Killer_T;m 275 60 275 60 1400 f Receptor_fits_antigen;g 305 140 305 140 0 - Healthy_cell;a 40 140 245 140 600 b -",
+a:"n 305 60 305 60 1800 d Enemy_base;q 289 60 289 60 1800 d -;a 40 60 255 60 0 k Commandos;m 275 60 275 60 1400 f Orders_match_marker;g 305 140 305 140 0 - Friendly_town;a 40 140 245 140 600 b -"},
+{n:"Antibodies",bt:"B cells make antibodies",bx:"B cells that recognize the antigen, with help from helper T cells, become plasma cells. Plasma cells release antibodies that block pathogens and tag them for phagocytes to eat.",at:"Guided missiles and marked targets",ax:"Missile command fires precision weapons that disable the enemy and mark targets so army units can capture them.",
+b:"a 45 55 45 55 0 - Plasma_cell;y 70 55 275 40 300 d -;y 70 55 275 55 700 d -;y 70 55 275 70 1100 d -;p 305 55 305 55 1800 d Blocked_pathogen;p 305 145 305 145 1500 e -;y 296 128 296 128 1500 e -;y 314 128 314 128 1500 e -;i 50 145 280 145 1500 k Macrophage_eats_tagged_microbe",
+a:"a 45 55 45 55 0 - Missile_command;y 70 55 275 40 300 d -;y 70 55 275 55 700 d -;y 70 55 275 70 1100 d -;p 305 55 305 55 1800 d Disabled_target;p 305 145 305 145 1500 e -;y 296 128 296 128 1500 e -;y 314 128 314 128 1500 e -;i 50 145 280 145 1500 k Army_captures_marked_target"},
+{n:"Memory",bt:"Memory cells remember",bx:"Most clones die off after the infection, but memory T and B cells stay for years and respond much faster if the pathogen returns. Vaccines build this memory safely.",at:"Veterans and intelligence files",ax:"Temporary forces stand down, but veterans and detailed files on the enemy stay on record, so a repeat attack is met quickly.",
+b:"a 45 55 45 55 0 d Clones_die_off;a 105 55 105 55 300 d -;a 165 55 165 55 600 d -;g 300 55 300 55 1000 u Memory_cells;p 320 145 320 145 2500 d Same_pathogen;g 50 145 255 145 1500 k Fast_response",
+a:"a 45 55 45 55 0 d Units_stand_down;a 105 55 105 55 300 d -;a 165 55 165 55 600 d -;g 300 55 300 55 1000 u Veterans_and_files;p 320 145 320 145 2500 d Same_enemy;g 50 145 255 145 1500 k Reserves_mobilize"}
+];
+var cur=0,P={};
+function $(i){return document.getElementById(i)}
+var R=false;
+function body(k,l,m){var b="",c=Math.cos,s=Math.sin,i,t,r;
+if(k=="w")b='<rect class="b" width="360" height="14" rx="5"/>';
+else if(k=="m")b='<circle r="14" fill="none" stroke="currentColor" stroke-width="3"/><path d="M-6 0L-2 5L7-5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+else if(k=="h")b=m?'<path class="b" d="M-46 28V-14L0-34L46-14V28Z" stroke-linejoin="round"/>':'<ellipse class="b" rx="46" ry="34"/>';
+else if(k=="z")b='<circle class="b" r="4"/>';
+else if(k=="q")b=m?'<path class="b" d="M0-6L5 4H-5Z"/>':'<circle class="b" r="5"/>';
+else if(k=="p"){if(m)b='<path class="b" d="M0-13L12 9H-12Z" stroke-linejoin="round"/>';else{for(i=0;i<8;i++){t=i*Math.PI/4;b+='<path d="M'+(9*c(t)).toFixed(1)+" "+(9*s(t)).toFixed(1)+"L"+(15*c(t)).toFixed(1)+" "+(15*s(t)).toFixed(1)+'" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>'}b+='<circle class="b" r="9"/>'}}
+else if(k=="y")b=m?'<path d="M-9 0H7M3-4L8 0L3 4" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>':'<path d="M0 8V0M0 0L-5-7M0 0L5-7" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+else{r=k=="i"?13:k=="a"?11:10;b=(!m&&k=="i"?'<circle class="rot" r="'+(r+5)+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 5" opacity=".6"/>':"")+(m?'<rect class="b" x="'+-r+'" y="'+-r+'" width="'+2*r+'" height="'+2*r+'" rx="3"/>':'<circle class="b" r="'+r+'"/>');if(!m){if(k!="n")b+='<circle class="nu" cx="2" cy="-1" r="'+r/3+'"/>';if(k=="a")b+='<path d="M0-11V-16M0-16L-3-20M0-16L3-20" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>'}}
+return b+(l?(k=="w"?'<text x="8" y="32" style="text-anchor:start">':'<text y="'+(k=="y"?22:k=="m"?-22:k=="h"?52:r?r+17:28)+'" text-anchor="middle">')+l+"</text>":"")}
+function draw(id,str,m){var L=[],dc=m?[[20,184],[90,186],[180,186],[270,184],[340,186]].map(function(o){return '<path d="M-7 0V-7L0-13L7-7V0Z" transform="translate('+o[0]+" "+o[1]+')"/>'}).join(""):[[40,20],[150,172],[335,150],[265,14],[18,120],[345,60]].map(function(o,n){return '<ellipse class="in" style="animation-delay:'+n*400+'ms" cx="'+o[0]+'" cy="'+o[1]+'" rx="9" ry="5"/>'}).join("");str.split(";").forEach(function(q){var f=q.split(" ");L.push({k:f[0],x0:+f[1],y0:+f[2],x1:+f[3],y1:+f[4],d:+f[5],e:f[6],l:f[7]=="-"?"":f[7].replace(/_/g," ")})});P[id]=L;
+$(id).innerHTML='<svg viewBox="0 0 360 190" role="img" aria-label="Animated diagram: '+(m?S[cur].at:S[cur].bt)+'"><g fill="currentColor" opacity=".14" class="'+(m?"kg":"kp")+'">'+dc+"</g>"+L.map(function(a,n){return '<g class="ac k'+a.k+'" style="transform:translate('+a.x0+"px,"+a.y0+"px)"+(a.e=="u"?";opacity:0":"")+'"><g class="in" style="animation-delay:'+n*180+'ms">'+body(a.k,a.l,m)+"</g></g>"}).join("")+"</svg>";run(id)}
+function run(id){var gs=$(id).querySelectorAll(".ac");P[id].forEach(function(a,n){var T=function(x,y,s){return "translate("+x+"px,"+y+"px) scale("+s+")"},t0=T(a.x0,a.y0,1),t1=T(a.x1,a.y1,1),e=a.e,dur=R?1:2000,f;
+if(e=="d")f=[{transform:t0,opacity:1},{transform:t1,opacity:1,offset:.7},{transform:T(a.x1,a.y1,1.4),opacity:0}];
+else if(e=="b")f=[{transform:t0},{transform:t1},{transform:t0}];
+else if(e=="u")f=[{transform:t0,opacity:0},{transform:t1,opacity:1}];
+else if(e=="s"){dur=R?1:3000;f=[{transform:t0,opacity:1},{transform:t1,opacity:1,offset:.4},{transform:T(a.x1+150,a.y1,1),opacity:0}]}
+else if(e=="f")f=[{transform:T(a.x1,a.y1,.4),opacity:0},{transform:t1,opacity:1,offset:.35},{transform:t1,opacity:1,offset:.7},{transform:T(a.x1,a.y1,1.5),opacity:0}];
+else if(e=="k")f=[{transform:t0},{transform:t1,offset:.6},{transform:T(a.x1,a.y1,1.35),offset:.8},{transform:t1}];
+else if(e=="e")f=[{transform:t0,opacity:1},{transform:t1,opacity:1,offset:.6},{transform:T(a.x1,a.y1,.5),opacity:1,offset:.8},{transform:T(a.x1,a.y1,.1),opacity:0}];
+else f=[{transform:t0},{transform:t1}];
+gs[n].animate(f,{duration:dur,delay:R?0:a.d,fill:"both",easing:"ease-in-out"})})}
+function render(){var s=S[cur];
+$("bt").textContent=s.bt;$("bx").textContent=s.bx;$("at").textContent=s.at;$("ax").textContent=s.ax;
+draw("sl",s.b,0);draw("sr",s.a,1);
+Array.prototype.forEach.call($("tabs").children,function(t,n){t.className="tab"+(n==cur?" on":"");if(n==cur)t.setAttribute("aria-current","step");else t.removeAttribute("aria-current")});
+$("prev").disabled=cur===0;$("next").disabled=cur===S.length-1}
+S.forEach(function(s,n){var b=document.createElement("button");b.innerHTML="<b>Stage "+(n+1)+"</b>"+s.n;b.onclick=function(){cur=n;render()};$("tabs").appendChild(b)});
+$("prev").onclick=function(){if(cur>0){cur--;render()}};
+$("next").onclick=function(){if(cur<S.length-1){cur++;render()}};
+$("sl").onclick=function(){run("sl")};$("sr").onclick=function(){run("sr")};
+$("rm").onchange=function(){R=this.checked;document.body.className=R?"calm":"";render()};
+$("rep").onclick=function(){run("sl");run("sr")};$("rst").onclick=function(){cur=0;render()};
+render();
+</script>
+</body>
+</html>
